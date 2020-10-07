@@ -4,12 +4,14 @@ import { ItemCardStyled, ItemCardDelete } from "./index.styled";
 interface Props {
   item: any;
   select(item: any): void;
-  selected: boolean;
+  currentItem: any;
   deleteItem?(system: any): void;
 }
 
 const ItemCard: React.FC<Props> = (props) => {
-  const { item, select, selected, deleteItem } = props;
+  const { item, select, currentItem, deleteItem } = props;
+  const selected =
+    currentItem && currentItem !== null && currentItem.value === item.value;
   return (
     <ItemCardStyled selected={selected} onClick={() => select(item)}>
       <img

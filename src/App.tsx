@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import size from "lodash/size";
+import isEmpty from "lodash/isEmpty";
 import MainWrapper from "./components/MainWrapper";
 import SystemCardWrapper from "./components/SystemCardWrapper";
 import SystemCard from "./components/SystemCard";
@@ -16,12 +17,12 @@ import setData from "./helpers/setData";
 const App: React.FC = () => {
   const [systemsData, setSystemsData] = useState(getData("systems"));
   const [itemsData, setItemsData] = useState(getData("items"));
-  const [currentItem, setCurrentItem] = useState(null);
+  const [currentItem, setCurrentItem] = useState({});
   const [stats, setStats] = useState<any>({});
   const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
-    if (itemsData && itemsData.length > 0 && !currentItem) {
+    if (itemsData && itemsData.length > 0 && isEmpty(currentItem)) {
       setCurrentItem(itemsData[0]);
     }
   }, [itemsData, currentItem]);
@@ -32,33 +33,37 @@ const App: React.FC = () => {
   }, [systemsData, itemsData]);
 
   function getStats(itemsData: any, systemsData: any) {
-    setStatsLoading(true);
-    const statsData: any = {};
-    const itemsId = itemsData.map((item: any) => item.value);
-    for (let index = 0; index < systemsData.length; index++) {
-      fetch(
-        "https://market.fuzzwork.co.uk/aggregates/?station=" +
-          systemsData[index].value +
-          "&types=" +
-          itemsId.join(",")
-      ).then((response: any) => {
-        if (response.status !== 200) {
-          console.log(
-            "Looks like there was a problem. Status Code: " + response.status
-          );
-          return;
-        }
-        response.json().then((data: any) => {
-          statsData[systemsData[index].value] = data;
-          if (size(statsData) === systemsData.length) {
-            setStats(statsData);
-            setTimeout(() => {
-              console.log("newStats", statsData);
-              setStatsLoading(false);
-            }, 200);
+    if (itemsData && itemsData.length > 0) {
+      setStatsLoading(true);
+      const statsData: any = {};
+      const itemsId = itemsData.map((item: any) => item.value);
+      for (let index = 0; index < systemsData.length; index++) {
+        fetch(
+          "https://market.fuzzwork.co.uk/aggregates/?station=" +
+            systemsData[index].value +
+            "&types=" +
+            itemsId.join(",")
+        ).then((response: any) => {
+          if (response.status !== 200) {
+            console.log(
+              "Looks like there was a problem. Status Code: " + response.status
+            );
+            return;
           }
+          response.json().then((data: any) => {
+            statsData[systemsData[index].value] = data;
+            if (size(statsData) === systemsData.length) {
+              setStats(statsData);
+              setTimeout(() => {
+                console.log("newStats", statsData);
+                setStatsLoading(false);
+              }, 200);
+            }
+          });
         });
-      });
+      }
+    } else {
+      setStatsLoading(false);
     }
   }
 
@@ -79,6 +84,7 @@ const App: React.FC = () => {
   }
 
   function addItem(itemInfo: any) {
+    setStatsLoading(true);
     if (itemsData.length > 0) {
       setItemsData(setData("items", [...itemsData, itemInfo]));
     } else {
@@ -101,31 +107,33 @@ const App: React.FC = () => {
       <ItemWrapper>
         <ItemSearch onChangeCallback={addItem} />
         <ItemCardWrapper>
-          {itemsData.map((item: any, index: number) => (
-            <ItemCard
-              key={item.value}
-              item={item}
-              select={selectItem}
-              selected={
-                currentItem !== null && currentItem.value === item.value
-              }
-              deleteItem={() => deleteItem(index)}
-            />
-          ))}
+          {itemsData.length > 0
+            ? itemsData.map((item: any, index: number) => (
+                <ItemCard
+                  key={item.value}
+                  item={item}
+                  select={selectItem}
+                  currentItem={currentItem}
+                  deleteItem={() => deleteItem(index)}
+                />
+              ))
+            : null}
         </ItemCardWrapper>
       </ItemWrapper>
 
       <SystemCardWrapper>
-        {systemsData.map((system: any, index: number) => (
-          <SystemCard
-            key={system.value}
-            system={system}
-            currentItem={currentItem}
-            stats={stats}
-            loading={statsLoading}
-            deleteSystem={() => deleteSystem(index)}
-          />
-        ))}
+        {systemsData.length > 0
+          ? systemsData.map((system: any, index: number) => (
+              <SystemCard
+                key={system.value}
+                system={system}
+                currentItem={currentItem}
+                stats={stats}
+                loading={statsLoading}
+                deleteSystem={() => deleteSystem(index)}
+              />
+            ))
+          : null}
         <SystemCardAdd onClick={addSystem} />
       </SystemCardWrapper>
     </MainWrapper>

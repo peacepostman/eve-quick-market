@@ -9,9 +9,9 @@ import {
 
 interface Props {
   system?: any;
-  currentItem: any;
-  stats: any;
-  loading: boolean;
+  currentItem?: any;
+  stats?: any;
+  loading?: boolean;
   deleteSystem?(system: any): void;
 }
 
@@ -31,7 +31,7 @@ const SystemCard: React.FC<Props> = (props) => {
   const { system, deleteSystem, currentItem, stats, loading } = props;
   const [image] = useState(Math.floor(Math.random() * 6) + 1);
   return (
-    <SystemCardStyled noImage={system}>
+    <SystemCardStyled noImage={!system}>
       {system ? (
         <>
           <SystemCardImg alt={system.label} src={"img/" + image + ".jpg"} />
@@ -51,7 +51,10 @@ const SystemCard: React.FC<Props> = (props) => {
             <h3>{system.label}</h3>
             {loading ? (
               <Loader />
-            ) : currentItem && stats ? (
+            ) : currentItem &&
+              currentItem.value &&
+              stats &&
+              stats[system.value] ? (
               <ul>
                 <li>
                   Min:{" "}
