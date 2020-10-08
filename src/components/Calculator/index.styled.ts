@@ -44,6 +44,12 @@ const CalculatorInput = styled.input`
   }
 `;
 
+const CalculatorVolume = styled.div`
+  font-size: 16px;
+  color: #fff;
+  margin-left: 20px;
+`;
+
 const CalculatorTotal = styled.div`
   margin-left: auto;
   display: flex;
@@ -52,4 +58,4 @@ const CalculatorTotal = styled.div`
   color: #44af44;
 `;
 
-export { CalculatorStyled, CalculatorInput, CalculatorTotal };
+export { CalculatorStyled, CalculatorInput, CalculatorVolume, CalculatorTotal };

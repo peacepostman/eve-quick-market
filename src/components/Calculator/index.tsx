@@ -7,6 +7,7 @@ import isEmpty from "lodash/isEmpty";
 import {
   CalculatorStyled,
   CalculatorInput,
+  CalculatorVolume,
   CalculatorTotal,
 } from "./index.styled";
 import formatCurrency from "./../../helpers/formatCurrency";
@@ -88,6 +89,11 @@ const Calculator: React.FC<Props> = (props) => {
     return formatCurrency(minMaxStat.max.min * qty - minMaxStat.min.min * qty);
   }
 
+  function getVolume() {
+    const qty = parseInt(quantity.replace(",", ""));
+    return formatCurrency(currentItem.packaged_volume * qty);
+  }
+
   return (
     <CalculatorStyled>
       {loading ? (
@@ -104,6 +110,7 @@ const Calculator: React.FC<Props> = (props) => {
       ) : (
         <>
           <CalculatorInput onChange={onChange} type="text" value={quantity} />
+          <CalculatorVolume>{getVolume()}m3</CalculatorVolume>
           {!isEmpty(minMaxStat) ? (
             <CalculatorTotal>+{getTotal()} isk</CalculatorTotal>
           ) : null}

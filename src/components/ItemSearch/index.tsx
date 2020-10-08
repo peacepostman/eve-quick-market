@@ -56,7 +56,7 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
                           value: item.type_id,
                           label: item.name,
                           image_type: !item.icon_id ? "render" : "icon",
-                          volume: item.volume,
+                          packaged_volume: item.packaged_volume,
                           description: item.description,
                         };
                       })
