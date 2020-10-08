@@ -4,8 +4,35 @@ interface Props {
   selected: boolean;
 }
 
+const ItemCardDelete = styled.a`
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 10px;
+  margin: 10px;
+  z-index: 2;
+  cursor: pointer;
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
+const ItemName = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  background-color: #fff;
+  transition: transform 0.2s ease-in;
+  transform: translateY(100%);
+`;
+
 const ItemCardStyled = styled.div<Props>`
   display: flex;
+  overflow: hidden;
   position: relative;
   margin: 0 20px;
   min-width: 180px;
@@ -22,6 +49,14 @@ const ItemCardStyled = styled.div<Props>`
 
   &:hover {
     opacity: ${(props) => (props.selected ? 1 : 0.85)};
+
+    ${ItemName} {
+      transform: translateY(0);
+    }
+  }
+
+  ${ItemName} {
+    transform: ${(props) => (props.selected ? "translateY(0)" : null)};
   }
 
   img {
@@ -36,19 +71,4 @@ const ItemCardStyled = styled.div<Props>`
   }
 `;
 
-const ItemCardDelete = styled.a`
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 10px;
-  margin: 10px;
-  z-index: 2;
-  cursor: pointer;
-
-  img {
-    width: 24px;
-    height: 24px;
-  }
-`;
-
-export { ItemCardStyled, ItemCardDelete };
+export { ItemCardStyled, ItemCardDelete, ItemName };

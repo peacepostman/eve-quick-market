@@ -1,5 +1,5 @@
 import React from "react";
-import { ItemCardStyled, ItemCardDelete } from "./index.styled";
+import { ItemCardStyled, ItemCardDelete, ItemName } from "./index.styled";
 
 interface Props {
   item: any;
@@ -21,6 +21,7 @@ const ItemCard: React.FC<Props> = (props) => {
       <ItemCardDelete onClick={deleteItem}>
         <img alt="Delete item" width="24" height="24" src="img/remove.svg" />
       </ItemCardDelete>
+      <ItemName>{item.label}</ItemName>
     </ItemCardStyled>
   );
 };
