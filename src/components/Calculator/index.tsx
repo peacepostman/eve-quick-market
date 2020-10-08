@@ -35,12 +35,14 @@ const Calculator: React.FC<Props> = (props) => {
   const [quantity, setQuantity] = useState<string>("10");
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && systemsData.length > 1) {
       const result = [];
       for (const [key, value] of Object.entries(stats) as any) {
-        const newObject = value[currentItem.value].sell;
-        newObject["place"] = find(systemsData, { value: parseInt(key) });
-        result.push(newObject);
+        if (value[currentItem.value]) {
+          const newObject = value[currentItem.value].sell;
+          newObject["place"] = find(systemsData, { value: parseInt(key) });
+          result.push(newObject);
+        }
       }
 
       const min = minBy(result, function (o) {
@@ -88,12 +90,7 @@ const Calculator: React.FC<Props> = (props) => {
 
   return (
     <CalculatorStyled>
-      {!isEmpty(minMaxStat) ? (
-        <>
-          <CalculatorInput onChange={onChange} type="text" value={quantity} />
-          <CalculatorTotal>+{getTotal()} isk</CalculatorTotal>
-        </>
-      ) : (
+      {loading ? (
         <div
           style={{
             flex: 1,
@@ -104,6 +101,13 @@ const Calculator: React.FC<Props> = (props) => {
         >
           <Loader color="#fff" />
         </div>
+      ) : (
+        <>
+          <CalculatorInput onChange={onChange} type="text" value={quantity} />
+          {!isEmpty(minMaxStat) ? (
+            <CalculatorTotal>+{getTotal()} isk</CalculatorTotal>
+          ) : null}
+        </>
       )}
     </CalculatorStyled>
   );

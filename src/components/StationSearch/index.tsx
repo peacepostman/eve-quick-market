@@ -87,8 +87,11 @@ const StationSearch = (props: {
 
   return (
     <AsyncSelect
+      styles={{
+        menuPortal: (provided) => ({ ...provided, zIndex: 5 }),
+      }}
       value={search}
-      placeholder="Selectionnez une station"
+      placeholder="Select a station"
       menuPortalTarget={document.body}
       onChange={onChange}
       cacheOptions

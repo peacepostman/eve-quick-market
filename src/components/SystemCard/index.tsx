@@ -66,7 +66,8 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
             ) : currentItem &&
               currentItem.value &&
               stats &&
-              stats[system.value] ? (
+              stats[system.value] &&
+              stats[system.value][currentItem.value] ? (
               <ul>
                 <li>
                   Min:{" "}

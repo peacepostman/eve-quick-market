@@ -99,6 +99,7 @@ const App: React.FC = () => {
   function deleteItem(index: number) {
     const frozenItemData = [...itemsData];
     frozenItemData.splice(index, 1);
+    setStatsLoading(true);
     setItemsData(setData("items", frozenItemData));
   }
 

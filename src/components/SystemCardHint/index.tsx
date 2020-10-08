@@ -19,7 +19,7 @@ const SystemCardHint: React.FC<Props> = (props) => {
   }, [minMax]);
 
   function getRouteHint() {
-    if (systemsRef && systemsRef.current.length > 0) {
+    if (systemsRef && systemsRef.current.length > 1) {
       const lowest = find(systemsRef.current, (element: any) => {
         return element.dataset.lowest === "true";
       });
@@ -45,7 +45,7 @@ const SystemCardHint: React.FC<Props> = (props) => {
     }
   }
 
-  return jumps ? (
+  return jumps && systemsRef && systemsRef.current.length > 1 ? (
     <SystemCardHintStyled style={hintStyle} direction={direction}>
       <div className="infos">
         <span className="percent">

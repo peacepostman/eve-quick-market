@@ -36,7 +36,7 @@ const SystemCardAdd: React.FC<Props> = (props) => {
         }}
       >
         <StationSearch onChangeCallback={setData} reset={reset} />
-        <SystemCardAddStyled onClick={onAdd}>Ajouter</SystemCardAddStyled>
+        <SystemCardAddStyled onClick={onAdd}>Add</SystemCardAddStyled>
       </div>
     </SystemCard>
   );

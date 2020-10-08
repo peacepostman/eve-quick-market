@@ -55,6 +55,7 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
                         return {
                           value: item.type_id,
                           label: item.name,
+                          image_type: !item.icon_id ? "render" : "icon",
                           volume: item.volume,
                           description: item.description,
                         };
@@ -90,8 +91,11 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
       }}
     >
       <AsyncSelect
+        styles={{
+          menuPortal: (provided) => ({ ...provided, zIndex: 5 }),
+        }}
         value={search}
-        placeholder="Selectionnez un item"
+        placeholder="Select an item"
         menuPortalTarget={document.body}
         onChange={onChange}
         cacheOptions

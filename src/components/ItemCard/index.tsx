@@ -8,15 +8,15 @@ interface Props {
   deleteItem?(system: any): void;
 }
 
-const ItemCard: React.FC<Props> = (props) => {
+const ItemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   const { item, select, currentItem, deleteItem } = props;
   const selected =
     currentItem && currentItem !== null && currentItem.value === item.value;
   return (
-    <ItemCardStyled selected={selected} onClick={() => select(item)}>
+    <ItemCardStyled ref={ref} selected={selected} onClick={() => select(item)}>
       <img
         alt={item.label}
-        src={`https://imageserver.eveonline.com/Type/${item.value}_1024.png`}
+        src={`https://images.evetech.net/types/${item.value}/${item.image_type}?size=1024`}
       />
       <ItemCardDelete onClick={deleteItem}>
         <img alt="Delete item" width="24" height="24" src="img/remove.svg" />
@@ -24,6 +24,6 @@ const ItemCard: React.FC<Props> = (props) => {
       <ItemName>{item.label}</ItemName>
     </ItemCardStyled>
   );
-};
+});
 
 export default ItemCard;

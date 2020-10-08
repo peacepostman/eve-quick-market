@@ -5,7 +5,7 @@ interface Props {
 }
 
 const SystemCardHintStyled = styled.div<Props>`
-  transition: width 0.2s ease-in;
+  transition: all 0.2s ease-in;
   position: absolute;
   bottom: 40px;
   z-index: 1;
