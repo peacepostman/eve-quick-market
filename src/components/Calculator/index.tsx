@@ -31,14 +31,13 @@ const fetchOption: any = {
 
 const Calculator: React.FC<Props> = (props) => {
   const { stats, loading, onCallback, currentItem, systemsData } = props;
-  const [minMaxStat, setMinMaxStat] = useState([]);
-  const [jumps, setJumps] = useState(0);
-  const [quantity, setQuantity] = useState(10);
+  const [minMaxStat, setMinMaxStat] = useState<any>([]);
+  const [quantity, setQuantity] = useState<string>("10");
 
   useEffect(() => {
     if (!loading) {
       const result = [];
-      for (const [key, value] of Object.entries(stats)) {
+      for (const [key, value] of Object.entries(stats) as any) {
         const newObject = value[currentItem.value].sell;
         newObject["place"] = find(systemsData, { value: parseInt(key) });
         result.push(newObject);
@@ -51,7 +50,6 @@ const Calculator: React.FC<Props> = (props) => {
       const max = maxBy(result, function (o) {
         return parseFloat(o.min);
       });
-      console.log("minMax", { min, max });
       if (!isEmpty(min) && !isEmpty(max)) {
         fetch(
           "https://esi.evetech.net/latest/route/" +
@@ -68,31 +66,32 @@ const Calculator: React.FC<Props> = (props) => {
             return;
           }
           response.json().then((data: any) => {
-            setJumps(data.length);
             onCallback({ min, max }, data.length);
             setMinMaxStat({ min, max });
           });
         });
       }
     }
-  }, [stats, systemsData, currentItem, loading]);
+  }, [loading, currentItem, setMinMaxStat]);
+
+  function onChange(e: any) {
+    let input = e.target.value;
+    input = input.replace(/[\D\s\._\-]+/g, "");
+    input = input ? parseInt(input, 10) : 0;
+    setQuantity(input === 0 ? "0" : input.toLocaleString("en-US"));
+  }
+
+  function getTotal() {
+    const qty = parseInt(quantity.replace(",", ""));
+    return formatCurrency(minMaxStat.max.min * qty - minMaxStat.min.min * qty);
+  }
 
   return (
     <CalculatorStyled>
       {!isEmpty(minMaxStat) ? (
         <>
-          <CalculatorInput
-            onChange={(e: any) => setQuantity(parseInt(e.target.value))}
-            type="number"
-            value={quantity}
-          />
-          <CalculatorTotal>
-            +
-            {formatCurrency(
-              minMaxStat.max.min * quantity - minMaxStat.min.min * quantity
-            )}{" "}
-            isk
-          </CalculatorTotal>
+          <CalculatorInput onChange={onChange} type="text" value={quantity} />
+          <CalculatorTotal>+{getTotal()} isk</CalculatorTotal>
         </>
       ) : (
         <div
@@ -103,7 +102,7 @@ const Calculator: React.FC<Props> = (props) => {
             justifyContent: "center",
           }}
         >
-          <Loader />
+          <Loader color="#fff" />
         </div>
       )}
     </CalculatorStyled>

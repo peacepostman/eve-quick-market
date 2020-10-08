@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import find from "lodash/find";
 import SystemCardHintStyled from "./index.styled";
+import formatCurrency from "./../../helpers/formatCurrency";
 
 interface Props {
   systemsRef: any;
@@ -11,7 +12,7 @@ interface Props {
 const SystemCardHint: React.FC<Props> = (props) => {
   const { systemsRef, minMax, jumps } = props;
   const [hintStyle, setHintStyle] = useState({});
-  const [direction, setDirection] = useState("left");
+  const [direction, setDirection] = useState<"left" | "right">("left");
 
   useEffect(() => {
     getRouteHint();
@@ -44,11 +45,20 @@ const SystemCardHint: React.FC<Props> = (props) => {
     }
   }
 
-  return (
+  return jumps ? (
     <SystemCardHintStyled style={hintStyle} direction={direction}>
-      <div className="jumps">{jumps} jumps</div>
+      <div className="infos">
+        <span className="percent">
+          +
+          {formatCurrency(
+            Number((minMax.max.min - minMax.min.min) / minMax.min.min) * 100
+          )}
+          %
+        </span>
+        {jumps} jumps
+      </div>
     </SystemCardHintStyled>
-  );
+  ) : null;
 };
 
 export default SystemCardHint;

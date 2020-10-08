@@ -8,7 +8,7 @@ import {
 } from "./index.styled";
 import formatCurrency from "./../../helpers/formatCurrency";
 
-interface Props {
+interface Props extends React.HTMLProps<HTMLButtonElement> {
   system?: any;
   currentItem?: any;
   stats?: any;
@@ -18,7 +18,7 @@ interface Props {
   deleteSystem?(system: any): void;
 }
 
-const SystemCard: React.FC<Props> = (props, ref) => {
+const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   const {
     system,
     deleteSystem,
@@ -96,6 +96,6 @@ const SystemCard: React.FC<Props> = (props, ref) => {
       </SystemCardContent>
     </SystemCardStyled>
   );
-};
+});
 
-export default React.forwardRef(SystemCard);
+export default SystemCard;

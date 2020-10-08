@@ -32,14 +32,15 @@ const CalculatorInput = styled.input`
   transition: all 100ms;
   box-sizing: border-box;
   padding: 2px 8px;
+  width: 110px;
 
   &:hover {
-    box-shadow: 0 0 0 2px #0a1b22;
+    box-shadow: 0 0 0 2px #122b36;
   }
 
   &:focus,
   &:active {
-    box-shadow: 0 0 0 2px #0a1b22;
+    box-shadow: 0 0 0 2px #1e3742;
   }
 `;
 
@@ -48,7 +49,7 @@ const CalculatorTotal = styled.div`
   display: flex;
   font-weight: bold;
   font-size: 24px;
-  color: green;
+  color: #44af44;
 `;
 
 export { CalculatorStyled, CalculatorInput, CalculatorTotal };

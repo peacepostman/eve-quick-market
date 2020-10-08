@@ -23,9 +23,9 @@ const App: React.FC = () => {
   const [currentItem, setCurrentItem] = useState({});
   const [stats, setStats] = useState<any>({});
   const [statsLoading, setStatsLoading] = useState(false);
-  const [minMax, setMinMax] = useState({});
+  const [minMax, setMinMax] = useState<any>({});
   const [jumps, setJumps] = useState(0);
-  const systemsRefs = useRef([]);
+  const systemsRefs = useRef<any>([]);
 
   useEffect(() => {
     if (itemsData && itemsData.length > 0 && isEmpty(currentItem)) {

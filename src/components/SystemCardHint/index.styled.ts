@@ -28,13 +28,18 @@ const SystemCardHintStyled = styled.div<Props>`
       props.direction === "left" ? "rotate(-45deg)" : "rotate(135deg)"};
   }
 
-  .jumps {
+  .infos {
     position: absolute;
     left: 50%;
     bottom: -30px;
     transform: translateX(-50%);
     color: #fff;
     font-weight: bold;
+
+    .percent {
+      color: #44af44;
+      margin-right: 20px;
+    }
   }
 `;
 

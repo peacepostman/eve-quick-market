@@ -1,8 +1,8 @@
 import styled, { keyframes } from "styled-components";
 
 interface LoaderProps {
-  readonly size: string;
-  readonly color: string;
+  readonly size?: string;
+  readonly color?: string;
 }
 
 const rotateLoading = keyframes`
