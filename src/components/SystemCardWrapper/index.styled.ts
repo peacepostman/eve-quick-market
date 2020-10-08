@@ -8,7 +8,9 @@ const SystemCardWrapperStyled = styled.div`
   flex-wrap: nowrap;
   overflow-y: hidden;
   overflow-x: scroll;
-  padding-bottom: 40px;
+  padding-bottom: 60px;
+  margin-bottom: 80px;
+  position: relative;
 
   &::-webkit-scrollbar {
     display: none;

@@ -6,35 +6,47 @@ import {
   SystemCardContent,
   SystemCardImg,
 } from "./index.styled";
+import formatCurrency from "./../../helpers/formatCurrency";
 
 interface Props {
   system?: any;
   currentItem?: any;
   stats?: any;
   loading?: boolean;
+  lowest?: boolean;
+  highest?: boolean;
   deleteSystem?(system: any): void;
 }
 
-function toCurrencyString(number: number) {
-  return Number(number)
-    .toFixed(2)
-    .replace(/(\d)(?=(\d{3})+\b)/g, "$1 ");
-}
-
-function toCurrencyQtyString(number: number) {
-  return Number(number)
-    .toFixed(0)
-    .replace(/(\d)(?=(\d{3})+\b)/g, "$1 ");
-}
-
-const SystemCard: React.FC<Props> = (props) => {
-  const { system, deleteSystem, currentItem, stats, loading } = props;
+const SystemCard: React.FC<Props> = (props, ref) => {
+  const {
+    system,
+    deleteSystem,
+    currentItem,
+    stats,
+    loading,
+    lowest,
+    highest,
+  } = props;
   const [image] = useState(Math.floor(Math.random() * 6) + 1);
+
   return (
-    <SystemCardStyled noImage={!system}>
+    <SystemCardStyled
+      ref={ref}
+      noImage={!system}
+      lowest={lowest}
+      data-lowest={lowest}
+      highest={highest}
+      data-highest={highest}
+    >
       {system ? (
         <>
-          <SystemCardImg alt={system.label} src={"img/" + image + ".jpg"} />
+          <SystemCardImg
+            alt={system.label}
+            lowest={lowest}
+            highest={highest}
+            src={"img/" + image + ".jpg"}
+          />
           <SystemCardDelete onClick={deleteSystem}>
             <img
               alt="Delete system"
@@ -58,13 +70,13 @@ const SystemCard: React.FC<Props> = (props) => {
               <ul>
                 <li>
                   Min:{" "}
-                  {toCurrencyString(
+                  {formatCurrency(
                     stats[system.value][currentItem.value].sell.min
                   )}
                 </li>
                 <li>
                   median:{" "}
-                  {toCurrencyString(
+                  {formatCurrency(
                     stats[system.value][currentItem.value].sell.median
                   )}
                 </li>
@@ -86,4 +98,4 @@ const SystemCard: React.FC<Props> = (props) => {
   );
 };
 
-export default SystemCard;
+export default React.forwardRef(SystemCard);

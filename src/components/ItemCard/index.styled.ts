@@ -25,9 +25,11 @@ const ItemName = styled.div`
   left: 0;
   right: 0;
   padding: 10px;
-  background-color: #fff;
   transition: transform 0.2s ease-in;
   transform: translateY(100%);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-weight: bold;
 `;
 
 const ItemCardStyled = styled.div<Props>`
@@ -41,15 +43,12 @@ const ItemCardStyled = styled.div<Props>`
   box-shadow: 0 4px 12px 2px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   transition: opacity 0.2s ease-in;
-  opacity: ${(props) => (props.selected ? 1 : 0.75)};
   background-color: rgba(15, 32, 39, 1);
-  border: 6px solid
+  border: 3px solid
     ${(props) =>
       props.selected ? "rgba(255, 255, 255, 0.65)" : "rgba(13, 28, 34, 1)"};
 
   &:hover {
-    opacity: ${(props) => (props.selected ? 1 : 0.85)};
-
     ${ItemName} {
       transform: translateY(0);
     }

@@ -82,7 +82,12 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
 
   return (
     <div
-      style={{ width: "30%", marginLeft: "50%", transform: "translateX(-50%)" }}
+      style={{
+        width: "30%",
+        marginLeft: "50%",
+        marginBottom: "60px",
+        transform: "translateX(-50%)",
+      }}
     >
       <AsyncSelect
         value={search}

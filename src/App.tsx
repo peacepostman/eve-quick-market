@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import size from "lodash/size";
 import isEmpty from "lodash/isEmpty";
 import MainWrapper from "./components/MainWrapper";
 import SystemCardWrapper from "./components/SystemCardWrapper";
 import SystemCard from "./components/SystemCard";
+import SystemCardHint from "./components/SystemCardHint";
 import SystemCardAdd from "./components/SystemCardAdd";
 
 import ItemWrapper from "./components/ItemWrapper";
-
 import ItemCard from "./components/ItemCard";
 import ItemCardWrapper from "./components/ItemCardWrapper";
 import ItemSearch from "./components/ItemSearch";
+
+import Calculator from "./components/Calculator";
+
 import getData from "./helpers/getData";
 import setData from "./helpers/setData";
 
@@ -20,6 +23,9 @@ const App: React.FC = () => {
   const [currentItem, setCurrentItem] = useState({});
   const [stats, setStats] = useState<any>({});
   const [statsLoading, setStatsLoading] = useState(false);
+  const [minMax, setMinMax] = useState({});
+  const [jumps, setJumps] = useState(0);
+  const systemsRefs = useRef([]);
 
   useEffect(() => {
     if (itemsData && itemsData.length > 0 && isEmpty(currentItem)) {
@@ -28,7 +34,6 @@ const App: React.FC = () => {
   }, [itemsData, currentItem]);
 
   useEffect(() => {
-    console.log("getStats", systemsData);
     getStats(itemsData, systemsData);
   }, [systemsData, itemsData]);
 
@@ -55,7 +60,6 @@ const App: React.FC = () => {
             if (size(statsData) === systemsData.length) {
               setStats(statsData);
               setTimeout(() => {
-                console.log("newStats", statsData);
                 setStatsLoading(false);
               }, 200);
             }
@@ -102,6 +106,11 @@ const App: React.FC = () => {
     setCurrentItem(item);
   }
 
+  function onCallback(minMax: any, jumps: number) {
+    setMinMax(minMax);
+    setJumps(jumps);
+  }
+
   return (
     <MainWrapper>
       <ItemWrapper>
@@ -126,16 +135,40 @@ const App: React.FC = () => {
           ? systemsData.map((system: any, index: number) => (
               <SystemCard
                 key={system.value}
+                ref={(ref) => (systemsRefs.current[index] = ref)}
                 system={system}
                 currentItem={currentItem}
                 stats={stats}
+                lowest={
+                  minMax &&
+                  minMax.min !== undefined &&
+                  system.value === minMax.min.place.value
+                }
+                highest={
+                  minMax &&
+                  minMax.max !== undefined &&
+                  system.value === minMax.max.place.value
+                }
                 loading={statsLoading}
                 deleteSystem={() => deleteSystem(index)}
               />
             ))
           : null}
+        <SystemCardHint
+          systemsRef={systemsRefs}
+          minMax={minMax}
+          jumps={jumps}
+        />
         <SystemCardAdd onClick={addSystem} />
       </SystemCardWrapper>
+
+      <Calculator
+        stats={stats}
+        loading={statsLoading}
+        systemsData={systemsData}
+        currentItem={currentItem}
+        onCallback={onCallback}
+      />
     </MainWrapper>
   );
 };
