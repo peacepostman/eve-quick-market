@@ -17,13 +17,14 @@ const SystemCardHintStyled = styled.div<Props>`
   &:before {
     content: "";
     border: solid white;
-    border-width: 0 3px 3px 0;
+    border-width: 0 2px 2px 0;
     display: inline-block;
-    padding: 3px;
+    padding: 5px;
     position: absolute;
-    bottom: -5px;
+    bottom: -7px;
     left: 50%;
-    margin-left: -3px;
+    margin-left: -9px;
+    transition: transform 0.15s ease-in;
     transform: ${(props) =>
       props.direction === "left" ? "rotate(-45deg)" : "rotate(135deg)"};
   }

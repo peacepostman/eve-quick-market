@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import sortBy from "lodash/sortBy";
 import AsyncSelect from "react-select/async";
+import { components } from "react-select";
 import debounce from "lodash/debounce";
 
 const fetchOption: any = {
@@ -11,6 +13,25 @@ const fetchOption: any = {
   mode: "cors",
   cache: "default",
 };
+
+const { Option } = components;
+const SystemSearchOption = (props: any) => (
+  <Option {...props}>
+    {props.data.max ? (
+      <img
+        className="maybeUseClassName"
+        src={`img/stock.svg`}
+        style={{
+          width: 30,
+          height: 30,
+          marginRight: "10px",
+        }}
+        alt={props.data.label}
+      />
+    ) : null}
+    {props.data.label}
+  </Option>
+);
 
 const StationSearch = (props: {
   onChangeCallback(data: any): void;
@@ -59,12 +80,31 @@ const StationSearch = (props: {
                 responseStation.json().then((dataStation: any) => {
                   stationObject.push(dataStation);
                   if (stationObject.length === data.station.length) {
+                    const sortedAndFiltered = sortBy(
+                      stationObject.filter((item) => {
+                        const splitted = item.name.split(" - ");
+                        return splitted[0]
+                          .toLowerCase()
+                          .includes(value.toLowerCase());
+                      }),
+                      ["name"]
+                    );
+
+                    const arrayMaxLocation = sortedAndFiltered.map((item) => {
+                      return item.office_rental_cost;
+                    });
+
+                    const indexOfMaxValue = arrayMaxLocation.indexOf(
+                      Math.max(...arrayMaxLocation)
+                    );
+
                     callback(
-                      stationObject.map((item: any) => {
+                      sortedAndFiltered.map((item: any, index: number) => {
                         return {
                           value: item.station_id,
                           label: item.name,
                           system_id: item.system_id,
+                          max: indexOfMaxValue === index,
                         };
                       })
                     );
@@ -89,7 +129,13 @@ const StationSearch = (props: {
     <AsyncSelect
       styles={{
         menuPortal: (provided) => ({ ...provided, zIndex: 5 }),
+        option: (provided: any) => ({
+          ...provided,
+          display: "flex",
+          alignItems: "center",
+        }),
       }}
+      components={{ Option: SystemSearchOption }}
       value={search}
       placeholder="Select a station"
       menuPortalTarget={document.body}

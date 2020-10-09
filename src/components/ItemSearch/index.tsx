@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AsyncSelect from "react-select/async";
+import { components } from "react-select";
 import debounce from "lodash/debounce";
 
 const fetchOption: any = {
@@ -11,6 +12,26 @@ const fetchOption: any = {
   mode: "cors",
   cache: "default",
 };
+
+const { Option } = components;
+const ItemSearchOption = (props: any) => (
+  <Option {...props}>
+    {props.data.image_type ? (
+      <img
+        className="maybeUseClassName"
+        src={`https://images.evetech.net/types/${props.data.value}/${props.data.image_type}?size=1024`}
+        style={{
+          width: 30,
+          height: 30,
+          borderRadius: "4px",
+          marginRight: "10px",
+        }}
+        alt={props.data.label}
+      />
+    ) : null}
+    {props.data.label}
+  </Option>
+);
 
 const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
   const { onChangeCallback } = props;
@@ -51,15 +72,27 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
                   itemObject.push(dataItem);
                   if (itemObject.length === data.inventory_type.length) {
                     callback(
-                      itemObject.map((item: any) => {
-                        return {
-                          value: item.type_id,
-                          label: item.name,
-                          image_type: !item.icon_id ? "render" : "icon",
-                          packaged_volume: item.packaged_volume,
-                          description: item.description,
-                        };
-                      })
+                      itemObject
+                        .filter(
+                          (item) => !item.name.toLowerCase().includes(" skin")
+                        )
+                        .map((item: any) => {
+                          return {
+                            value: item.type_id,
+                            label: item.name,
+                            image_type: item.name
+                              .toLowerCase()
+                              .includes("blueprint")
+                              ? "bp"
+                              : !item.icon_id
+                              ? item.graphic_id
+                                ? "render"
+                                : null
+                              : "icon",
+                            packaged_volume: item.packaged_volume,
+                            description: item.description,
+                          };
+                        })
                     );
                   }
                 });
@@ -92,8 +125,14 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
     >
       <AsyncSelect
         styles={{
-          menuPortal: (provided) => ({ ...provided, zIndex: 5 }),
+          menuPortal: (provided: any) => ({ ...provided, zIndex: 5 }),
+          option: (provided: any) => ({
+            ...provided,
+            display: "flex",
+            alignItems: "center",
+          }),
         }}
+        components={{ Option: ItemSearchOption }}
         value={search}
         placeholder="Select an item"
         menuPortalTarget={document.body}
