@@ -37,9 +37,9 @@ const ItemCardStyled = styled.div<Props>`
   overflow: hidden;
   position: relative;
   margin: 0 20px;
-  min-width: 180px;
-  height: 180px;
-  flex: 180px 0 0;
+  min-width: 120px;
+  height: 120px;
+  flex: 120px 0 0;
   box-shadow: 0 4px 12px 2px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   transition: opacity 0.2s ease-in;
