@@ -1,5 +1,5 @@
 import React from "react";
-import MainWrapperStyled from "./index.styled";
+import MainWrapperStyled from "./MainWrapper.styled";
 
 const MainWrapper: React.FC = (props) => {
   return <MainWrapperStyled>{props.children}</MainWrapperStyled>;

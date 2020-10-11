@@ -10,17 +10,18 @@ import sum from "lodash/sum";
 import take from "lodash/take";
 import reverse from "lodash/reverse";
 import sortBy from "lodash/sortBy";
+
+import EveOnlineAPI from "./model/eveOnlineApi";
+
 import MainWrapper from "./components/MainWrapper";
 import SystemCardWrapper from "./components/SystemCardWrapper";
 import SystemCard from "./components/SystemCard";
 import SystemCardHint from "./components/SystemCardHint";
 import SystemCardAdd from "./components/SystemCardAdd";
-
 import ItemWrapper from "./components/ItemWrapper";
 import ItemCard from "./components/ItemCard";
 import ItemCardWrapper from "./components/ItemCardWrapper";
 import ItemSearch from "./components/ItemSearch";
-
 import Calculator from "./components/Calculator";
 
 import getData from "./helpers/getData";
@@ -30,7 +31,7 @@ const App: React.FC = () => {
   const [systemsData, setSystemsData] = useState(getData("systems"));
   const [itemsData, setItemsData] = useState(getData("items"));
   const [currentItem, setCurrentItem] = useState<any>({});
-  const [stats, setStats] = useState<any>({});
+  const [stats, setStats] = useState<any>(getData("stats", true));
   const [statsLoading, setStatsLoading] = useState(false);
   const [minMax, setMinMax] = useState<any>({});
   const [jumps, setJumps] = useState(0);
@@ -51,52 +52,61 @@ const App: React.FC = () => {
   function getItemStat() {
     setStatsLoading(true);
     const statsData: any = {};
+
     for (let index = 0; index < systemsData.length; index++) {
-      console.log(systemsData[index].value);
-      fetch(
-        `https://esi.evetech.net/latest/markets/${systemsData[index].region_id}/orders/?datasource=tranquility&order_type=sell&page=1&type_id=${currentItem.value}`
-      ).then((response: any) => {
-        if (response.status !== 200) {
-          console.log(
-            "Looks like there was a problem. Status Code: " + response.status
-          );
-          return;
-        }
-        response.json().then((sells: any) => {
-          fetch(
-            `https://esi.evetech.net/latest/markets/${systemsData[index].region_id}/history/?datasource=tranquility&type_id=${currentItem.value}`
-          ).then((response: any) => {
-            if (response.status !== 200) {
-              console.log(
-                "Looks like there was a problem. Status Code: " +
-                  response.status
-              );
-              return;
-            }
-            response.json().then((data: any) => {
-              const systemOnly = filter(sells, {
-                location_id: systemsData[index].value,
-              });
-              statsData[systemsData[index].value] = {};
-              statsData[systemsData[index].value][currentItem.value] = {
-                orderCount: systemOnly.length,
-                volume: sum(map(systemOnly, "volume_remain")),
-                min: min(map(systemOnly, "price")),
-                max: max(map(systemOnly, "price")),
-                median: mean(map(systemOnly, "price")),
-                orders: sortBy(systemOnly, ["price"]),
-                history: reverse(take(reverse(data), 10)),
-              };
-              if (size(statsData) === systemsData.length) {
-                setStats(statsData);
-                setTimeout(() => {
-                  setStatsLoading(false);
-                }, 200);
-              }
+      if (
+        stats &&
+        stats[systemsData[index].value] &&
+        stats[systemsData[index].value][currentItem.value] &&
+        stats[systemsData[index].value][currentItem.value].cache_expire &&
+        stats[systemsData[index].value][currentItem.value].cache_expire >
+          Date.now()
+      ) {
+        setStatsLoading(false);
+        return;
+      } else {
+        EveOnlineAPI.marketSellOrder(
+          systemsData[index].region_id,
+          currentItem.value
+        ).then((sells: any) => {
+          console.log({ sells });
+          EveOnlineAPI.marketHistory(
+            systemsData[index].region_id,
+            currentItem.value
+          ).then((history: any) => {
+            const systemOnly = filter(sells.data, {
+              location_id: systemsData[index].value,
             });
+
+            if (stats && stats[systemsData[index].value]) {
+              statsData[systemsData[index].value] = {
+                ...stats[systemsData[index].value],
+              };
+              console.log("systemExist");
+            } else {
+              statsData[systemsData[index].value] = {};
+            }
+
+            statsData[systemsData[index].value][currentItem.value] = {
+              orderCount: systemOnly.length,
+              cache_expire: new Date(sells.headers.expires).getTime(),
+              volume: sum(map(systemOnly, "volume_remain")),
+              min: min(map(systemOnly, "price")),
+              max: max(map(systemOnly, "price")),
+              median: mean(map(systemOnly, "price")),
+              orders: sortBy(systemOnly, ["price"]),
+              history: reverse(take(reverse(history.data), 10)),
+            };
+            if (size(statsData) === systemsData.length) {
+              setStats(statsData);
+              setData("stats", statsData, true);
+              setTimeout(() => {
+                setStatsLoading(false);
+              }, 200);
+            }
           });
         });
-      });
+      }
     }
   }
 

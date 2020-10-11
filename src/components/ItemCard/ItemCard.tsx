@@ -1,5 +1,5 @@
 import React from "react";
-import { ItemCardStyled, ItemCardDelete, ItemName } from "./index.styled";
+import { ItemCardStyled, ItemCardDelete, ItemName } from "./ItemCard.styled";
 
 interface Props {
   item: any;

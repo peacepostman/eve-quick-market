@@ -1,8 +1,12 @@
 import { isArray } from "lodash";
 
-function setData(type: string = "systems", data: any) {
+function setData(
+  type: string = "systems",
+  data: any,
+  noArray: boolean = false
+) {
   console.log("data", data);
-  if (!isArray(data)) {
+  if (!isArray(data) && !noArray) {
     data = [data];
   }
   localStorage.setItem("eve_" + type, JSON.stringify(data));

@@ -9,7 +9,7 @@ import {
   CalculatorInput,
   CalculatorVolume,
   CalculatorTotal,
-} from "./index.styled";
+} from "./Calculator.styled";
 import formatCurrency from "./../../helpers/formatCurrency";
 
 interface Props {

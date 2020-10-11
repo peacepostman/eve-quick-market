@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SystemCard from "./../SystemCard";
 import StationSearch from "./../StationSearch";
-import SystemCardAddStyled from "./index.styled";
+import SystemCardAddStyled from "./SystemCardAdd.styled";
 
 interface Props {
   onClick(info: any): void;

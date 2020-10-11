@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import find from "lodash/find";
-import SystemCardHintStyled from "./index.styled";
+import SystemCardHintStyled from "./SystemCardHint.styled";
 import formatCurrency from "./../../helpers/formatCurrency";
 
 interface Props {

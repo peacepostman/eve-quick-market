@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { Line } from "react-chartjs-2";
 import map from "lodash/map";
+import isFunction from "lodash/isFunction";
 import Loader from "./../Loader";
 import {
   SystemCardStyled,
@@ -8,7 +9,7 @@ import {
   SystemCardContent,
   SystemToolTip,
   SystemCardImg,
-} from "./index.styled";
+} from "./SystemCard.styled";
 import formatCurrency from "./../../helpers/formatCurrency";
 
 interface Props extends React.HTMLProps<HTMLButtonElement> {
@@ -35,14 +36,32 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   const [tooltipData, setTooltipData] = useState<any>({});
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const chartRef = useRef<any>(null);
+  const systemCardRef = useRef<any>(null);
+
+  useLayoutEffect(() => {
+    if (ref) {
+      if (isFunction(ref)) {
+        ref(systemCardRef.current);
+      } else {
+        (ref as any).current = systemCardRef.current;
+      }
+    }
+  }, [systemCardRef]);
 
   useEffect(() => {
     function hideTooltip() {
       setShowTooltip(false);
     }
     document.addEventListener("scroll", hideTooltip);
-    return () => document.removeEventListener("scroll", hideTooltip);
-  });
+    systemCardRef.current.parentElement.addEventListener("scroll", hideTooltip);
+    return () => {
+      document.removeEventListener("scroll", hideTooltip);
+      systemCardRef.current.parentElement.removeEventListener(
+        "scroll",
+        hideTooltip
+      );
+    };
+  }, []);
 
   const setPositionAndData = (data: any) => {
     setTooltipData(data);
@@ -50,7 +69,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
 
   return (
     <SystemCardStyled
-      ref={ref}
+      ref={systemCardRef}
       noImage={!system}
       lowest={lowest}
       data-lowest={lowest}
