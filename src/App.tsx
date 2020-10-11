@@ -38,26 +38,19 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (itemsData && itemsData.length > 0 && isEmpty(currentItem)) {
-      console.log("setCurrentItem", itemsData[0]);
       setCurrentItem(itemsData[0]);
     }
   }, [itemsData]);
 
   useEffect(() => {
     if (!isEmpty(currentItem) && systemsData && systemsData.length > 0) {
-      console.log("currentItem", currentItem);
       getItemStat();
     }
   }, [currentItem, systemsData, itemsData]);
 
-  // useEffect(() => {
-  //   getStats(itemsData, systemsData);
-  // }, [systemsData, itemsData]);
-
   function getItemStat() {
     setStatsLoading(true);
     const statsData: any = {};
-    console.log("currentItem", currentItem);
     for (let index = 0; index < systemsData.length; index++) {
       console.log(systemsData[index].value);
       fetch(
@@ -107,40 +100,6 @@ const App: React.FC = () => {
     }
   }
 
-  function getStats(itemsData: any, systemsData: any) {
-    if (itemsData && itemsData.length > 0) {
-      setStatsLoading(true);
-      const statsData: any = {};
-      const itemsId = itemsData.map((item: any) => item.value);
-      for (let index = 0; index < systemsData.length; index++) {
-        fetch(
-          "https://market.fuzzwork.co.uk/aggregates/?station=" +
-            systemsData[index].value +
-            "&types=" +
-            itemsId.join(",")
-        ).then((response: any) => {
-          if (response.status !== 200) {
-            console.log(
-              "Looks like there was a problem. Status Code: " + response.status
-            );
-            return;
-          }
-          response.json().then((data: any) => {
-            statsData[systemsData[index].value] = data;
-            if (size(statsData) === systemsData.length) {
-              setStats(statsData);
-              setTimeout(() => {
-                setStatsLoading(false);
-              }, 200);
-            }
-          });
-        });
-      }
-    } else {
-      setStatsLoading(false);
-    }
-  }
-
   function addSystem(systemInfo: any) {
     setStatsLoading(true);
     if (systemsData.length > 0) {
@@ -168,7 +127,14 @@ const App: React.FC = () => {
 
   function deleteItem(index: number) {
     const frozenItemData = [...itemsData];
-    frozenItemData.splice(index, 1);
+    const deleted: any = frozenItemData.splice(index, 1);
+    if (deleted.length > 0 && deleted[0].value === currentItem.value) {
+      if (frozenItemData.length > 0) {
+        setTimeout(() => {
+          setCurrentItem(frozenItemData[frozenItemData.length - 1]);
+        }, 200);
+      }
+    }
     setStatsLoading(true);
     setItemsData(setData("items", frozenItemData));
   }
