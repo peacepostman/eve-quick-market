@@ -69,7 +69,6 @@ const App: React.FC = () => {
           systemsData[index].region_id,
           currentItem.value
         ).then((sells: any) => {
-          console.log({ sells });
           EveOnlineAPI.marketHistory(
             systemsData[index].region_id,
             currentItem.value
@@ -82,7 +81,6 @@ const App: React.FC = () => {
               statsData[systemsData[index].value] = {
                 ...stats[systemsData[index].value],
               };
-              console.log("systemExist");
             } else {
               statsData[systemsData[index].value] = {};
             }
@@ -94,7 +92,7 @@ const App: React.FC = () => {
               min: min(map(systemOnly, "price")),
               max: max(map(systemOnly, "price")),
               median: mean(map(systemOnly, "price")),
-              orders: sortBy(systemOnly, ["price"]),
+              orders: take(sortBy(systemOnly, ["price"]), 5),
               history: reverse(take(reverse(history.data), 10)),
             };
             if (size(statsData) === systemsData.length) {

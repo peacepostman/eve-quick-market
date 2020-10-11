@@ -47,7 +47,7 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
           ) {
             EveOnlineAPI.getItem(response.data.inventory_type[index]).then(
               (dataItem: any) => {
-                itemObject.push(dataItem);
+                itemObject.push(dataItem.data);
                 if (itemObject.length === response.data.inventory_type.length) {
                   callback(
                     itemObject

@@ -26,7 +26,7 @@ export default class EveOnlineAPI {
 
   static searchItem(itemName: string) {
     return axios.get(
-      `${BASE_URL}search/?categories=inventory_type&datasource=tranquility&language=en-us&strict=false&search${itemName}`,
+      `${BASE_URL}search/?categories=inventory_type&datasource=tranquility&language=en-us&strict=false&search=${itemName}`,
       axiosOptions
     );
   }
