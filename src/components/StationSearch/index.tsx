@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import sortBy from "lodash/sortBy";
+import find from "lodash/find";
 import AsyncSelect from "react-select/async";
+import stationPerRegion from "./../../data/regionPerStation";
 import { components } from "react-select";
 import debounce from "lodash/debounce";
 
@@ -20,7 +22,7 @@ const SystemSearchOption = (props: any) => (
     {props.data.max ? (
       <img
         className="maybeUseClassName"
-        src={`img/stock.svg`}
+        src={`img/hub.png`}
         style={{
           width: 30,
           height: 30,
@@ -32,6 +34,16 @@ const SystemSearchOption = (props: any) => (
     {props.data.label}
   </Option>
 );
+
+function getRegionId(stationID: number) {
+  if (stationPerRegion && stationPerRegion.length > 0) {
+    return find(stationPerRegion, {
+      s_id: stationID,
+    })?.r_id;
+  } else {
+    return null;
+  }
+}
 
 const StationSearch = (props: {
   onChangeCallback(data: any): void;
@@ -104,6 +116,7 @@ const StationSearch = (props: {
                           value: item.station_id,
                           label: item.name,
                           system_id: item.system_id,
+                          region_id: getRegionId(item.station_id),
                           max: indexOfMaxValue === index,
                         };
                       })
@@ -129,10 +142,33 @@ const StationSearch = (props: {
     <AsyncSelect
       styles={{
         menuPortal: (provided) => ({ ...provided, zIndex: 5 }),
-        option: (provided: any) => ({
+        option: (provided: any, state) => ({
           ...provided,
           display: "flex",
           alignItems: "center",
+          color: state.isSelected || state.isFocused ? "#fff" : "#ddd",
+          backgroundColor:
+            state.isSelected || state.isFocused
+              ? "rgba(255, 255, 255, .2)"
+              : "transparent",
+        }),
+        control: (provided, state) => ({
+          ...provided,
+          backgroundColor: "rgb(19, 36, 44)",
+          borderRadius: 0,
+          borderColor: state.isFocused ? "#fff" : "rgba(255, 255, 255, .6)",
+          boxShadow: state.isFocused ? "none" : "none",
+          "&:hover": {
+            borderColor: state.isFocused ? "#fff" : "rgba(255, 255, 255, .8)",
+          },
+        }),
+        input: (provided) => ({ ...provided, color: "#fff" }),
+        menu: (provided) => ({
+          ...provided,
+          backgroundColor: "rgba(19, 36, 44, .4)",
+          border: "1px solid rgba(255, 255, 255, .6)",
+          borderRadius: 0,
+          backdropFilter: "blur(6px)",
         }),
       }}
       components={{ Option: SystemSearchOption }}

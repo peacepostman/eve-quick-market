@@ -12,6 +12,12 @@ const ItemCardDelete = styled.a`
   margin: 10px;
   z-index: 2;
   cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s ease-in;
+
+  &:hover {
+    opacity: 1;
+  }
 
   img {
     width: 24px;
@@ -28,8 +34,9 @@ const ItemName = styled.div`
   transition: transform 0.2s ease-in;
   transform: translateY(100%);
   backdrop-filter: blur(6px);
-  color: #fff;
+  color: #ddd;
   font-weight: bold;
+  font-size: 14px;
 `;
 
 const ItemCardStyled = styled.div<Props>`
@@ -41,10 +48,9 @@ const ItemCardStyled = styled.div<Props>`
   height: 120px;
   flex: 120px 0 0;
   box-shadow: 0 4px 12px 2px rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
   transition: opacity 0.2s ease-in;
   background-color: rgba(15, 32, 39, 1);
-  border: 3px solid
+  border: 1px solid
     ${(props) =>
       props.selected ? "rgba(255, 255, 255, 0.65)" : "rgba(13, 28, 34, 1)"};
 
@@ -59,7 +65,6 @@ const ItemCardStyled = styled.div<Props>`
   }
 
   img {
-    border-radius: 5px;
     position: absolute;
     left: 0;
     top: 0;

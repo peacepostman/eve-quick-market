@@ -40,7 +40,7 @@ const Calculator: React.FC<Props> = (props) => {
       const result = [];
       for (const [key, value] of Object.entries(stats) as any) {
         if (value[currentItem.value]) {
-          const newObject = value[currentItem.value].sell;
+          const newObject = value[currentItem.value];
           newObject["place"] = find(systemsData, { value: parseInt(key) });
           result.push(newObject);
         }

@@ -23,7 +23,6 @@ const ItemSearchOption = (props: any) => (
         style={{
           width: 30,
           height: 30,
-          borderRadius: "4px",
           marginRight: "10px",
         }}
         alt={props.data.label}
@@ -125,11 +124,34 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
     >
       <AsyncSelect
         styles={{
-          menuPortal: (provided: any) => ({ ...provided, zIndex: 5 }),
-          option: (provided: any) => ({
+          menuPortal: (provided) => ({ ...provided, zIndex: 5 }),
+          option: (provided: any, state) => ({
             ...provided,
             display: "flex",
             alignItems: "center",
+            color: state.isSelected || state.isFocused ? "#fff" : "#ddd",
+            backgroundColor:
+              state.isSelected || state.isFocused
+                ? "rgba(255, 255, 255, .2)"
+                : "transparent",
+          }),
+          control: (provided, state) => ({
+            ...provided,
+            backgroundColor: "rgb(19, 36, 44)",
+            borderRadius: 0,
+            borderColor: state.isFocused ? "#fff" : "rgba(255, 255, 255, .6)",
+            boxShadow: state.isFocused ? "none" : "none",
+            "&:hover": {
+              borderColor: state.isFocused ? "#fff" : "rgba(255, 255, 255, .8)",
+            },
+          }),
+          input: (provided) => ({ ...provided, color: "#fff" }),
+          menu: (provided) => ({
+            ...provided,
+            backgroundColor: "rgba(19, 36, 44, .4)",
+            border: "1px solid rgba(255, 255, 255, .6)",
+            borderRadius: 0,
+            backdropFilter: "blur(6px)",
           }),
         }}
         components={{ Option: ItemSearchOption }}

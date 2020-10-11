@@ -33,9 +33,10 @@ const SystemCardHint: React.FC<Props> = (props) => {
         const highestPos = highest.getBoundingClientRect();
         const minLeft = Math.min(lowestPos.left, highestPos.left);
         const maxLeft = Math.max(lowestPos.left, highestPos.left);
+        const scrollLeft = lowest.parentElement.scrollLeft;
         setDirection(highestPos.left > lowestPos.left ? "left" : "right");
         setHintStyle({
-          left: minLeft + highestPos.width / 2,
+          left: minLeft + highestPos.width / 2 + scrollLeft,
           width:
             maxLeft + highestPos.width / 2 - (minLeft + highestPos.width / 2),
         });

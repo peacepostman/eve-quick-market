@@ -1,8 +1,8 @@
 import React from "react";
-import SystemCardWrapperStyled from "./index.styled";
+import SystemCardStyled from "./index.styled";
 
-const SystemCardWrapper: React.FC = (props) => {
-  return <SystemCardWrapperStyled>{props.children}</SystemCardWrapperStyled>;
+const SystemCard: React.FC = (props) => {
+  return <SystemCardStyled>{props.children}</SystemCardStyled>;
 };
 
-export default SystemCardWrapper;
+export default SystemCard;

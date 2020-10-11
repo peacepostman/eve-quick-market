@@ -11,17 +11,17 @@ const SystemCardHintStyled = styled.div<Props>`
   z-index: 1;
   height: 30px;
   border-radius: 10px;
-  border: 2px solid #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-top: none;
 
   &:before {
     content: "";
-    border: solid white;
-    border-width: 0 2px 2px 0;
+    border: solid rgba(255, 255, 255, 0.6);
+    border-width: 0 1px 1px 0;
     display: inline-block;
     padding: 5px;
     position: absolute;
-    bottom: -7px;
+    bottom: -6px;
     left: 50%;
     margin-left: -9px;
     transition: transform 0.15s ease-in;

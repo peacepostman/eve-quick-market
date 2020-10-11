@@ -1,6 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import size from "lodash/size";
 import isEmpty from "lodash/isEmpty";
+import filter from "lodash/filter";
+import mean from "lodash/mean";
+import map from "lodash/map";
+import min from "lodash/min";
+import max from "lodash/max";
+import sum from "lodash/sum";
+import take from "lodash/take";
+import reverse from "lodash/reverse";
+import sortBy from "lodash/sortBy";
 import MainWrapper from "./components/MainWrapper";
 import SystemCardWrapper from "./components/SystemCardWrapper";
 import SystemCard from "./components/SystemCard";
@@ -20,7 +29,7 @@ import setData from "./helpers/setData";
 const App: React.FC = () => {
   const [systemsData, setSystemsData] = useState(getData("systems"));
   const [itemsData, setItemsData] = useState(getData("items"));
-  const [currentItem, setCurrentItem] = useState({});
+  const [currentItem, setCurrentItem] = useState<any>({});
   const [stats, setStats] = useState<any>({});
   const [statsLoading, setStatsLoading] = useState(false);
   const [minMax, setMinMax] = useState<any>({});
@@ -29,13 +38,74 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (itemsData && itemsData.length > 0 && isEmpty(currentItem)) {
+      console.log("setCurrentItem", itemsData[0]);
       setCurrentItem(itemsData[0]);
     }
-  }, [itemsData, currentItem]);
+  }, [itemsData]);
 
   useEffect(() => {
-    getStats(itemsData, systemsData);
-  }, [systemsData, itemsData]);
+    if (!isEmpty(currentItem) && systemsData && systemsData.length > 0) {
+      console.log("currentItem", currentItem);
+      getItemStat();
+    }
+  }, [currentItem, systemsData, itemsData]);
+
+  // useEffect(() => {
+  //   getStats(itemsData, systemsData);
+  // }, [systemsData, itemsData]);
+
+  function getItemStat() {
+    setStatsLoading(true);
+    const statsData: any = {};
+    console.log("currentItem", currentItem);
+    for (let index = 0; index < systemsData.length; index++) {
+      console.log(systemsData[index].value);
+      fetch(
+        `https://esi.evetech.net/latest/markets/${systemsData[index].region_id}/orders/?datasource=tranquility&order_type=sell&page=1&type_id=${currentItem.value}`
+      ).then((response: any) => {
+        if (response.status !== 200) {
+          console.log(
+            "Looks like there was a problem. Status Code: " + response.status
+          );
+          return;
+        }
+        response.json().then((sells: any) => {
+          fetch(
+            `https://esi.evetech.net/latest/markets/${systemsData[index].region_id}/history/?datasource=tranquility&type_id=${currentItem.value}`
+          ).then((response: any) => {
+            if (response.status !== 200) {
+              console.log(
+                "Looks like there was a problem. Status Code: " +
+                  response.status
+              );
+              return;
+            }
+            response.json().then((data: any) => {
+              const systemOnly = filter(sells, {
+                location_id: systemsData[index].value,
+              });
+              statsData[systemsData[index].value] = {};
+              statsData[systemsData[index].value][currentItem.value] = {
+                orderCount: systemOnly.length,
+                volume: sum(map(systemOnly, "volume_remain")),
+                min: min(map(systemOnly, "price")),
+                max: max(map(systemOnly, "price")),
+                median: mean(map(systemOnly, "price")),
+                orders: sortBy(systemOnly, ["price"]),
+                history: reverse(take(reverse(data), 10)),
+              };
+              if (size(statsData) === systemsData.length) {
+                setStats(statsData);
+                setTimeout(() => {
+                  setStatsLoading(false);
+                }, 200);
+              }
+            });
+          });
+        });
+      });
+    }
+  }
 
   function getStats(itemsData: any, systemsData: any) {
     if (itemsData && itemsData.length > 0) {
