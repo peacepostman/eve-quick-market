@@ -56,7 +56,7 @@ const StationSearch = (props: {
   const loadOptions = (value: string, callback: any) => {
     if (value) {
       const stationObject: any[] = [];
-      EveOnlineAPI.searchStation(value)
+      EveOnlineAPI.search(value, "station")
         .then((response: any) => {
           if (
             response &&

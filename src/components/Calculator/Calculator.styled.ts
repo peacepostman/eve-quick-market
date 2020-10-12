@@ -25,7 +25,6 @@ const CalculatorLabel = styled.label`
 const CalculatorInput = styled.input`
   align-items: center;
   background-color: #0a1b22;
-  border-radius: 4px;
   border: none;
   color: #fff;
   font-size: 18px;

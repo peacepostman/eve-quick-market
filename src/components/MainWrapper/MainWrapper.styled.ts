@@ -55,7 +55,6 @@ const MainWrapperStyled = styled.div`
     box-sizing: border-box;
     margin-bottom: 1rem;
     padding: 8px;
-    border-radius: 1px;
     box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1),
       0 2px 15px 0 rgba(0, 0, 0, 0.05);
     display: -ms-flexbox;
@@ -74,7 +73,7 @@ const MainWrapperStyled = styled.div`
   }
   .Toastify__toast--dark {
     background: rgb(25, 44, 52);
-    color: #fff;
+    color: rgba(255, 255, 255, 0.8);
   }
   .Toastify__toast--default {
     background: #fff;
@@ -142,7 +141,7 @@ const MainWrapperStyled = styled.div`
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 5px;
+    height: 2px;
     z-index: 9999;
     opacity: 0.7;
     background-color: rgba(255, 255, 255, 0.7);

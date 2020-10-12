@@ -34,7 +34,7 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
   const loadOptions = (value: string, callback: any) => {
     if (value) {
       const itemObject: any[] = [];
-      EveOnlineAPI.searchItem(value)
+      EveOnlineAPI.search(value, "inventory_type")
         .then((response: any) => {
           if (
             response &&

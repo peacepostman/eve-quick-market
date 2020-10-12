@@ -10,9 +10,12 @@ const axiosOptions: any = {
 };
 
 export default class EveOnlineAPI {
-  static searchStation(stationName: string) {
+  static search(
+    itemName: string,
+    categorie: "inventory_type" | "station" | "region" | "solar_system"
+  ) {
     return axios.get(
-      `search/?categories=station&datasource=tranquility&language=en-us&strict=false&search=${stationName}`,
+      `search/?categories=${categorie}&datasource=tranquility&language=en-us&strict=false&search=${itemName}`,
       axiosOptions
     );
   }
@@ -20,13 +23,6 @@ export default class EveOnlineAPI {
   static getStation(stationID: string) {
     return axios.get(
       `universe/stations/${stationID}/?datasource=tranquility`,
-      axiosOptions
-    );
-  }
-
-  static searchItem(itemName: string) {
-    return axios.get(
-      `search/?categories=inventory_type&datasource=tranquility&language=en-us&strict=false&search=${itemName}`,
       axiosOptions
     );
   }
