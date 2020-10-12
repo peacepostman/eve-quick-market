@@ -18,7 +18,7 @@ const LoaderStyled = styled.div<LoaderProps>`
   display: flex;
   &:after {
     content: "";
-    border: 2px solid ${(props) => props.color};
+    border: 1px solid ${(props) => props.color};
     border-radius: 50%;
     border-right-color: transparent;
     border-top-color: transparent;

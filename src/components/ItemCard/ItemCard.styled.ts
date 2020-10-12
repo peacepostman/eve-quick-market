@@ -43,6 +43,7 @@ const ItemCardStyled = styled.div<Props>`
   display: flex;
   overflow: hidden;
   position: relative;
+  cursor: pointer;
   margin: 0 20px;
   min-width: 120px;
   height: 120px;

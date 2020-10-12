@@ -99,7 +99,9 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
           <>
             <h3>{system.label}</h3>
             {loading ? (
-              <Loader />
+              <div style={{ margin: "20px 0" }}>
+                <Loader color="rgba(255, 255, 255, .6)" />
+              </div>
             ) : currentItem &&
               currentItem.value &&
               stats &&
