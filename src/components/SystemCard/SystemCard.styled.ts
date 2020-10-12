@@ -27,6 +27,7 @@ const SystemCardStyled = styled.div<Props>`
 
   h3 {
     margin-top: 0;
+    margin-bottom: 0;
     font-size: 16px;
   }
 
@@ -53,7 +54,7 @@ const SystemCardContent = styled.div`
   flex: 1;
 
   .system-card-graph {
-    margin: 0 -20px 20px;
+    margin: 20px -20px 20px;
     position: relative;
   }
 

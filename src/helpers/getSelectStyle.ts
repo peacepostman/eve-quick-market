@@ -28,4 +28,5 @@ export default {
     borderRadius: 0,
     backdropFilter: "blur(6px)",
   }),
+  singleValue: (provided: any) => ({ ...provided, color: "#fff" }),
 };

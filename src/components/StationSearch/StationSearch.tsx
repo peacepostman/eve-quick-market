@@ -65,7 +65,7 @@ const StationSearch = (props: {
           for (let index = 0; index < response.data.station.length; index++) {
             EveOnlineAPI.getStation(response.data.station[index]).then(
               (dataStation: any) => {
-                stationObject.push(dataStation);
+                stationObject.push(dataStation.data);
                 if (stationObject.length === response.data.station.length) {
                   const sortedAndFiltered = sortBy(
                     stationObject.filter((item) => {

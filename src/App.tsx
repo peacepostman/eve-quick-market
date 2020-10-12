@@ -118,6 +118,10 @@ const App: React.FC = () => {
   }
 
   function deleteSystem(index: number) {
+    let frozenStats = stats;
+    delete frozenStats[index];
+    setStats(setData("stats", frozenStats));
+
     let frozenSystemData = [...systemsData];
     frozenSystemData.splice(index, 1);
     setStatsLoading(true);
@@ -134,6 +138,14 @@ const App: React.FC = () => {
   }
 
   function deleteItem(index: number) {
+    let frozenStats = stats;
+    for (const [key, value] of Object.entries(frozenStats) as any) {
+      if (value[index]) {
+        delete value[index];
+      }
+    }
+    setStats(setData("stats", frozenStats));
+
     const frozenItemData = [...itemsData];
     const deleted: any = frozenItemData.splice(index, 1);
     if (deleted.length > 0 && deleted[0].value === currentItem.value) {
