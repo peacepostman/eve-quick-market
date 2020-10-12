@@ -97,21 +97,21 @@ const Calculator: React.FC<Props> = (props) => {
     let input = e.target.value;
     input = input.replace(/[\D\s\._\-]+/g, "");
     input = input ? parseInt(input, 10) : 0;
-    setQuantity(input === 0 ? "0" : input.toLocaleString("en-US"));
+    setQuantity(input === 0 ? "0" : input.toLocaleString("fr-FR"));
   }
 
   function getTotal() {
-    const qty = parseInt(quantity.replace(",", ""));
+    const qty = parseInt(quantity.replace(/[\D\s\._\-]+/g, ""));
     return formatCurrency(minMaxStat.max.min * qty);
   }
 
   function getTaxes() {
-    const qty = parseInt(quantity.replace(",", ""));
+    const qty = parseInt(quantity.replace(/[\D\s\._\-]+/g, ""));
     return formatCurrency(minMaxStat.max.min * qty * 0.1);
   }
 
   function getBenefit() {
-    const qty = parseInt(quantity.replace(",", ""));
+    const qty = parseInt(quantity.replace(/[\D\s\._\-]+/g, ""));
     return formatCurrency(
       minMaxStat.max.min * qty -
         minMaxStat.min.min * qty -
@@ -120,7 +120,7 @@ const Calculator: React.FC<Props> = (props) => {
   }
 
   function getVolume() {
-    const qty = parseInt(quantity.replace(",", ""));
+    const qty = parseInt(quantity.replace(/[\D\s\._\-]+/g, ""));
     return formatCurrency(currentItem.packaged_volume * qty);
   }
 
@@ -131,9 +131,9 @@ const Calculator: React.FC<Props> = (props) => {
     currentValue = currentValue ? parseInt(currentValue, 10) : 0;
 
     if (keyCode === 38) {
-      setQuantity((currentValue + 1).toLocaleString("en-US"));
+      setQuantity((currentValue + 1).toLocaleString("fr-FR"));
     } else if (keyCode === 40 && currentValue !== 0) {
-      setQuantity((currentValue - 1).toLocaleString("en-US"));
+      setQuantity((currentValue - 1).toLocaleString("fr-FR"));
     }
   }
 
