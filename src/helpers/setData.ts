@@ -5,7 +5,6 @@ function setData(
   data: any,
   noArray: boolean = false
 ) {
-  console.log("data", data);
   if (!isArray(data) && !noArray) {
     data = [data];
   }

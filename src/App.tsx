@@ -102,10 +102,7 @@ const App: React.FC = () => {
                   orders: take(sortBy(systemOnly, ["price"]), 5),
                   history: reverse(take(reverse(history.data), 10)),
                 };
-                console.log("systemsDataLength", systemsData.length);
-                console.log("sizeStats", size(statsData));
                 if (size(statsData) === systemsData.length) {
-                  console.log("set");
                   setStats(statsData);
                   setData("stats", statsData, true);
                   setTimeout(() => {
