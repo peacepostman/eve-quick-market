@@ -20,7 +20,6 @@ const SystemCardAdd: React.FC<Props> = (props) => {
 
   function onAdd(e: any) {
     e.preventDefault();
-    console.log("data", data);
     onClick(data);
     setReset(true);
   }

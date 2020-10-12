@@ -11,6 +11,7 @@ import sum from "lodash/sum";
 import take from "lodash/take";
 import reverse from "lodash/reverse";
 import sortBy from "lodash/sortBy";
+import findIndex from "lodash/findIndex";
 
 import EveOnlineAPI from "./model/eveOnlineApi";
 
@@ -40,8 +41,29 @@ const App: React.FC = () => {
   const systemsRefs = useRef<any>([]);
 
   useEffect(() => {
-    if (itemsData && itemsData.length > 0 && isEmpty(currentItem)) {
-      setCurrentItem(itemsData[0]);
+    function changeItem(e: any) {
+      const { keyCode } = e;
+      setCurrentItem((previous: any) => {
+        const currentIndex = findIndex(itemsData, (o: any) => {
+          return o.value == previous.value;
+        });
+        if (keyCode === 37 && currentIndex > 0) {
+          return itemsData[currentIndex - 1];
+        } else if (keyCode === 39 && currentIndex + 1 < itemsData.length) {
+          return itemsData[currentIndex + 1];
+        } else {
+          return previous;
+        }
+      });
+    }
+
+    if (itemsData && itemsData.length > 0) {
+      if (isEmpty(currentItem)) {
+        setCurrentItem(itemsData[0]);
+      }
+
+      document.addEventListener("keydown", changeItem);
+      return () => document.removeEventListener("keydown", changeItem);
     }
   }, [itemsData]);
 
