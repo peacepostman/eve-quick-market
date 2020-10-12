@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { ToastContainer, Slide } from "react-toastify";
+import { ToastContainer, Slide, toast } from "react-toastify";
 import size from "lodash/size";
 import isEmpty from "lodash/isEmpty";
 import filter from "lodash/filter";
@@ -38,6 +38,7 @@ const App: React.FC = () => {
   const [statsLoading, setStatsLoading] = useState(false);
   const [minMax, setMinMax] = useState<any>({});
   const [jumps, setJumps] = useState(0);
+  const [showHint, setShowHint] = useState(false);
   const systemsRefs = useRef<any>([]);
 
   useEffect(() => {
@@ -62,10 +63,27 @@ const App: React.FC = () => {
         setCurrentItem(itemsData[0]);
       }
 
+      if (itemsData.length >= 2) {
+        setShowHint(true);
+      }
+
       document.addEventListener("keydown", changeItem);
       return () => document.removeEventListener("keydown", changeItem);
     }
   }, [itemsData]);
+
+  useEffect(() => {
+    if (showHint) {
+      toast.dark("You can navigate between items using ⬅️ and ➡️ keys", {
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  }, [showHint]);
 
   useEffect(() => {
     if (!isEmpty(currentItem) && systemsData && systemsData.length > 0) {

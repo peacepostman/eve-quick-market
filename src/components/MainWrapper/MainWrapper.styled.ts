@@ -73,7 +73,7 @@ const MainWrapperStyled = styled.div`
     direction: rtl;
   }
   .Toastify__toast--dark {
-    background: #121212;
+    background: rgb(25, 44, 52);
     color: #fff;
   }
   .Toastify__toast--default {
@@ -171,7 +171,7 @@ const MainWrapperStyled = styled.div`
     );
   }
   .Toastify__progress-bar--dark {
-    background: #bb86fc;
+    background: rgba(255, 255, 255, 0.6);
   }
 
   @keyframes Toastify__slideInRight {
