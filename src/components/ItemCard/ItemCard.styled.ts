@@ -61,6 +61,15 @@ const ItemCardStyled = styled.div<Props>`
     }
   }
 
+  &:last-child:after {
+    content: "";
+    display: block;
+    position: absolute;
+    right: -20px;
+    width: 20px;
+    height: 1px;
+  }
+
   ${ItemName} {
     transform: ${(props) => (props.selected ? "translateY(0)" : null)};
   }

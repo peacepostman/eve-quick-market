@@ -99,7 +99,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
           <>
             <h3>{system.label}</h3>
             {loading ? (
-              <div style={{ margin: "20px 0" }}>
+              <div style={{ margin: "20px 0", height: "200px" }}>
                 <Loader color="rgba(255, 255, 255, .6)" />
               </div>
             ) : currentItem &&
@@ -204,7 +204,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
                           const left =
                             position.left +
                             tooltipModel.caretX -
-                            (index > 6 ? 120 : 0);
+                            (index > 5 ? 180 : 0);
                           const top = position.top + tooltipModel.caretY + 5;
 
                           if (
@@ -276,15 +276,32 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {stats[system.value][currentItem.value].orders.map(
-                      (order: any, index: number) => {
-                        return index < 3 ? (
-                          <tr key={index}>
-                            <td>{formatCurrency(order.volume_remain)}</td>
-                            <td>{formatCurrency(order.price)} ISK</td>
-                          </tr>
-                        ) : null;
-                      }
+                    {stats[system.value][currentItem.value].orders.length >
+                    0 ? (
+                      stats[system.value][currentItem.value].orders.map(
+                        (order: any, index: number) => {
+                          return index < 3 ? (
+                            <tr key={index}>
+                              <td>{formatCurrency(order.volume_remain)}</td>
+                              <td>{formatCurrency(order.price)} ISK</td>
+                            </tr>
+                          ) : null;
+                        }
+                      )
+                    ) : (
+                      <>
+                        <tr>
+                          <td colSpan={2}>&nbsp;</td>
+                        </tr>
+                        <tr>
+                          <td colSpan={2} style={{ textAlign: "center" }}>
+                            No sell orders
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan={2}>&nbsp;</td>
+                        </tr>
+                      </>
                     )}
                   </tbody>
                 </table>

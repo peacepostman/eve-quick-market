@@ -6,6 +6,7 @@ import debounce from "lodash/debounce";
 import EveOnlineAPI from "./../../model/eveOnlineApi";
 
 import getSelectStyle from "./../../helpers/getSelectStyle";
+import toastError from "./../../helpers/toastError";
 
 const { Option } = components;
 const ItemSearchOption = (props: any) => (
@@ -33,51 +34,55 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
   const loadOptions = (value: string, callback: any) => {
     if (value) {
       const itemObject: any[] = [];
-      EveOnlineAPI.searchItem(value).then((response: any) => {
-        if (
-          response &&
-          response.data &&
-          response.data.inventory_type &&
-          response.data.inventory_type.length > 0
-        ) {
-          for (
-            let index = 0;
-            index < response.data.inventory_type.length;
-            index++
+      EveOnlineAPI.searchItem(value)
+        .then((response: any) => {
+          if (
+            response &&
+            response.data &&
+            response.data.inventory_type &&
+            response.data.inventory_type.length > 0
           ) {
-            EveOnlineAPI.getItem(response.data.inventory_type[index]).then(
-              (dataItem: any) => {
-                itemObject.push(dataItem.data);
-                if (itemObject.length === response.data.inventory_type.length) {
-                  callback(
-                    itemObject
-                      .filter(
-                        (item) => !item.name.toLowerCase().includes(" skin")
-                      )
-                      .map((item: any) => {
-                        return {
-                          value: item.type_id,
-                          label: item.name,
-                          image_type: item.name
-                            .toLowerCase()
-                            .includes("blueprint")
-                            ? "bp"
-                            : !item.icon_id
-                            ? item.graphic_id
-                              ? "render"
-                              : null
-                            : "icon",
-                          packaged_volume: item.packaged_volume,
-                          description: item.description,
-                        };
-                      })
-                  );
-                }
-              }
-            );
+            for (
+              let index = 0;
+              index < response.data.inventory_type.length;
+              index++
+            ) {
+              EveOnlineAPI.getItem(response.data.inventory_type[index])
+                .then((dataItem: any) => {
+                  itemObject.push(dataItem.data);
+                  if (
+                    itemObject.length === response.data.inventory_type.length
+                  ) {
+                    callback(
+                      itemObject
+                        .filter(
+                          (item) => !item.name.toLowerCase().includes(" skin")
+                        )
+                        .map((item: any) => {
+                          return {
+                            value: item.type_id,
+                            label: item.name,
+                            image_type: item.name
+                              .toLowerCase()
+                              .includes("blueprint")
+                              ? "bp"
+                              : !item.icon_id
+                              ? item.graphic_id
+                                ? "render"
+                                : null
+                              : "icon",
+                            packaged_volume: item.packaged_volume,
+                            description: item.description,
+                          };
+                        })
+                    );
+                  }
+                })
+                .catch(toastError);
+            }
           }
-        }
-      });
+        })
+        .catch(toastError);
     }
   };
 

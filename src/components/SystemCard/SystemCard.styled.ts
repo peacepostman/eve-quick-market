@@ -67,15 +67,21 @@ const SystemCardContent = styled.div`
     }
     tr th,
     tr td {
-      border: 1px solid rgba(204, 204, 204, 0.2);
+      border: 1px solid #8d8d8d;
       padding: 8px;
     }
     tr td {
       border-top: none;
       border-bottom: none;
     }
-    tr:last-child td {
-      border-bottom: 1px solid rgba(204, 204, 204, 0.2);
+    tr th:last-child,
+    tr td:last-child {
+      border-right: none;
+    }
+
+    tr th:first-child,
+    tr td:first-child {
+      border-left: none;
     }
   }
 `;

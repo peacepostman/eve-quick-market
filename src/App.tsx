@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { ToastContainer, Slide } from "react-toastify";
 import size from "lodash/size";
 import isEmpty from "lodash/isEmpty";
 import filter from "lodash/filter";
@@ -26,6 +27,7 @@ import Calculator from "./components/Calculator";
 
 import getData from "./helpers/getData";
 import setData from "./helpers/setData";
+import toastError from "./helpers/toastError";
 
 const App: React.FC = () => {
   const [systemsData, setSystemsData] = useState(getData("systems"));
@@ -62,48 +64,58 @@ const App: React.FC = () => {
         stats[systemsData[index].value][currentItem.value].cache_expire >
           Date.now()
       ) {
-        setStatsLoading(false);
-        return;
+        statsData[systemsData[index].value] = stats[systemsData[index].value];
+        if (index === systemsData.length - 1) {
+          setStatsLoading(false);
+          return;
+        }
       } else {
-        EveOnlineAPI.marketSellOrder(
+        EveOnlineAPI.getMarketOrder(
           systemsData[index].region_id,
           currentItem.value
-        ).then((sells: any) => {
-          EveOnlineAPI.marketHistory(
-            systemsData[index].region_id,
-            currentItem.value
-          ).then((history: any) => {
-            const systemOnly = filter(sells.data, {
-              location_id: systemsData[index].value,
-            });
+        )
+          .then((sells: any) => {
+            EveOnlineAPI.getMarketHistory(
+              systemsData[index].region_id,
+              currentItem.value
+            )
+              .then((history: any) => {
+                const systemOnly = filter(sells.data, {
+                  location_id: systemsData[index].value,
+                });
 
-            if (stats && stats[systemsData[index].value]) {
-              statsData[systemsData[index].value] = {
-                ...stats[systemsData[index].value],
-              };
-            } else {
-              statsData[systemsData[index].value] = {};
-            }
+                if (stats && stats[systemsData[index].value]) {
+                  statsData[systemsData[index].value] = {
+                    ...stats[systemsData[index].value],
+                  };
+                } else {
+                  statsData[systemsData[index].value] = {};
+                }
 
-            statsData[systemsData[index].value][currentItem.value] = {
-              orderCount: systemOnly.length,
-              cache_expire: new Date(sells.headers.expires).getTime(),
-              volume: sum(map(systemOnly, "volume_remain")),
-              min: min(map(systemOnly, "price")),
-              max: max(map(systemOnly, "price")),
-              median: mean(map(systemOnly, "price")),
-              orders: take(sortBy(systemOnly, ["price"]), 5),
-              history: reverse(take(reverse(history.data), 10)),
-            };
-            if (size(statsData) === systemsData.length) {
-              setStats(statsData);
-              setData("stats", statsData, true);
-              setTimeout(() => {
-                setStatsLoading(false);
-              }, 200);
-            }
-          });
-        });
+                statsData[systemsData[index].value][currentItem.value] = {
+                  orderCount: systemOnly.length,
+                  cache_expire: new Date(sells.headers.expires).getTime(),
+                  volume: sum(map(systemOnly, "volume_remain")),
+                  min: min(map(systemOnly, "price")),
+                  max: max(map(systemOnly, "price")),
+                  median: mean(map(systemOnly, "price")),
+                  orders: take(sortBy(systemOnly, ["price"]), 5),
+                  history: reverse(take(reverse(history.data), 10)),
+                };
+                console.log("systemsDataLength", systemsData.length);
+                console.log("sizeStats", size(statsData));
+                if (size(statsData) === systemsData.length) {
+                  console.log("set");
+                  setStats(statsData);
+                  setData("stats", statsData, true);
+                  setTimeout(() => {
+                    setStatsLoading(false);
+                  }, 200);
+                }
+              })
+              .catch(toastError);
+          })
+          .catch(toastError);
       }
     }
   }
@@ -225,6 +237,18 @@ const App: React.FC = () => {
         systemsData={systemsData}
         currentItem={currentItem}
         onCallback={onCallback}
+      />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        transition={Slide}
       />
     </MainWrapper>
   );

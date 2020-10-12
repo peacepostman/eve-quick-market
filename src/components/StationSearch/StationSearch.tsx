@@ -9,6 +9,7 @@ import EveOnlineAPI from "./../../model/eveOnlineApi";
 
 import stationPerRegion from "./../../data/regionPerStation";
 import getSelectStyle from "./../../helpers/getSelectStyle";
+import toastError from "./../../helpers/toastError";
 
 const { Option } = components;
 const SystemSearchOption = (props: any) => (
@@ -55,53 +56,55 @@ const StationSearch = (props: {
   const loadOptions = (value: string, callback: any) => {
     if (value) {
       const stationObject: any[] = [];
-      EveOnlineAPI.searchStation(value).then((response: any) => {
-        if (
-          response &&
-          response.data &&
-          response.data.station &&
-          response.data.station.length > 0
-        ) {
-          for (let index = 0; index < response.data.station.length; index++) {
-            EveOnlineAPI.getStation(response.data.station[index]).then(
-              (dataStation: any) => {
-                stationObject.push(dataStation.data);
-                if (stationObject.length === response.data.station.length) {
-                  const sortedAndFiltered = sortBy(
-                    stationObject.filter((item) => {
-                      const splitted = item.name.split(" - ");
-                      return splitted[0]
-                        .toLowerCase()
-                        .includes(value.toLowerCase());
-                    }),
-                    ["name"]
-                  );
+      EveOnlineAPI.searchStation(value)
+        .then((response: any) => {
+          if (
+            response &&
+            response.data &&
+            response.data.station &&
+            response.data.station.length > 0
+          ) {
+            for (let index = 0; index < response.data.station.length; index++) {
+              EveOnlineAPI.getStation(response.data.station[index]).then(
+                (dataStation: any) => {
+                  stationObject.push(dataStation.data);
+                  if (stationObject.length === response.data.station.length) {
+                    const sortedAndFiltered = sortBy(
+                      stationObject.filter((item) => {
+                        const splitted = item.name.split(" - ");
+                        return splitted[0]
+                          .toLowerCase()
+                          .includes(value.toLowerCase());
+                      }),
+                      ["name"]
+                    );
 
-                  const arrayMaxLocation = sortedAndFiltered.map((item) => {
-                    return item.office_rental_cost;
-                  });
+                    const arrayMaxLocation = sortedAndFiltered.map((item) => {
+                      return item.office_rental_cost;
+                    });
 
-                  const indexOfMaxValue = arrayMaxLocation.indexOf(
-                    Math.max(...arrayMaxLocation)
-                  );
+                    const indexOfMaxValue = arrayMaxLocation.indexOf(
+                      Math.max(...arrayMaxLocation)
+                    );
 
-                  callback(
-                    sortedAndFiltered.map((item: any, index: number) => {
-                      return {
-                        value: item.station_id,
-                        label: item.name,
-                        system_id: item.system_id,
-                        region_id: getRegionId(item.station_id),
-                        max: indexOfMaxValue === index,
-                      };
-                    })
-                  );
+                    callback(
+                      sortedAndFiltered.map((item: any, index: number) => {
+                        return {
+                          value: item.station_id,
+                          label: item.name,
+                          system_id: item.system_id,
+                          region_id: getRegionId(item.station_id),
+                          max: indexOfMaxValue === index,
+                        };
+                      })
+                    );
+                  }
                 }
-              }
-            );
+              );
+            }
           }
-        }
-      });
+        })
+        .catch(toastError);
     }
   };
 

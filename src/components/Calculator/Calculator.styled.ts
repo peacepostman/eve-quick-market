@@ -9,11 +9,17 @@ const CalculatorStyled = styled.div`
   right: 0;
   width: 100%;
   background-color: rgba(15, 32, 39, 0.7);
-  padding: 20px;
+  padding: 10px 20px;
   z-index: 3;
   box-shadow: 0 4px 12px 2px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(6px);
   color: #fff;
+`;
+
+const CalculatorLabel = styled.label`
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.6);
 `;
 
 const CalculatorInput = styled.input`
@@ -45,17 +51,41 @@ const CalculatorInput = styled.input`
 `;
 
 const CalculatorVolume = styled.div`
-  font-size: 16px;
-  color: #fff;
-  margin-left: 20px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 5px;
 `;
 
 const CalculatorTotal = styled.div`
   margin-left: auto;
   display: flex;
   font-weight: bold;
-  font-size: 24px;
-  color: #44af44;
+  font-size: 16px;
+
+  ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    li span {
+      font-weight: normal;
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+    li:nth-child(1) {
+      color: #fff;
+    }
+    li:nth-child(2) {
+      color: #e03333;
+    }
+    li:nth-child(3) {
+      color: #44af44;
+    }
+  }
 `;
 
-export { CalculatorStyled, CalculatorInput, CalculatorVolume, CalculatorTotal };
+export {
+  CalculatorStyled,
+  CalculatorLabel,
+  CalculatorInput,
+  CalculatorVolume,
+  CalculatorTotal,
+};

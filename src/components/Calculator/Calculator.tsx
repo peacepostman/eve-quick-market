@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from "react";
-import Loader from "./../Loader";
 import maxBy from "lodash/maxBy";
 import minBy from "lodash/minBy";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
+
+import EveOnlineAPI from "./../../model/eveOnlineApi";
+
+import Loader from "./../Loader";
 import {
   CalculatorStyled,
+  CalculatorLabel,
   CalculatorInput,
   CalculatorVolume,
   CalculatorTotal,
 } from "./Calculator.styled";
+
 import formatCurrency from "./../../helpers/formatCurrency";
+import getData from "./../../helpers/getData";
+import setData from "./../../helpers/setData";
+import toastError from "./../../helpers/toastError";
 
 interface Props {
   stats: any;
@@ -20,20 +28,11 @@ interface Props {
   loading: boolean;
 }
 
-const fetchOption: any = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    "Accept-Language": "en-us",
-  },
-  mode: "cors",
-  cache: "default",
-};
-
 const Calculator: React.FC<Props> = (props) => {
   const { stats, loading, onCallback, currentItem, systemsData } = props;
   const [minMaxStat, setMinMaxStat] = useState<any>([]);
   const [quantity, setQuantity] = useState<string>("10");
+  const [routes, setRoutes] = useState<any>(getData("routes", true));
 
   useEffect(() => {
     if (!loading && systemsData.length > 1) {
@@ -53,26 +52,43 @@ const Calculator: React.FC<Props> = (props) => {
       const max = maxBy(result, function (o) {
         return parseFloat(o.min);
       });
+
       if (!isEmpty(min) && !isEmpty(max)) {
-        fetch(
-          "https://esi.evetech.net/latest/route/" +
-            min.place.system_id +
-            "/" +
-            max.place.system_id +
-            "/?datasource=tranquility&flag=secure",
-          fetchOption
-        ).then((response: any) => {
-          if (response.status !== 200) {
-            console.log(
-              "Looks like there was a problem. Status Code: " + response.status
-            );
-            return;
-          }
-          response.json().then((data: any) => {
-            onCallback({ min, max }, data.length);
-            setMinMaxStat({ min, max });
-          });
-        });
+        const cacheName = [min.place.system_id, max.place.system_id]
+          .sort(function (a, b) {
+            return a - b;
+          })
+          .join("_");
+        if (
+          !isEmpty(routes) &&
+          routes[cacheName] &&
+          routes[cacheName].cache_expire &&
+          routes[cacheName].cache_expire > Date.now()
+        ) {
+          onCallback({ min, max }, routes[cacheName].totalJump);
+          setMinMaxStat({ min, max });
+        } else {
+          EveOnlineAPI.getRoute(min.place.system_id, max.place.system_id)
+            .then((response: any) => {
+              let routeData: any = {};
+
+              if (!isEmpty(routes)) {
+                routeData = {
+                  ...routes,
+                };
+              }
+
+              routeData[cacheName] = {
+                totalJump: response.data.length,
+                cache_expire: new Date(response.headers.expires).getTime(),
+              };
+
+              setRoutes(setData("routes", routeData, true));
+              onCallback({ min, max }, response.data.length);
+              setMinMaxStat({ min, max });
+            })
+            .catch(toastError);
+        }
       }
     }
   }, [loading, currentItem, setMinMaxStat]);
@@ -86,12 +102,39 @@ const Calculator: React.FC<Props> = (props) => {
 
   function getTotal() {
     const qty = parseInt(quantity.replace(",", ""));
-    return formatCurrency(minMaxStat.max.min * qty - minMaxStat.min.min * qty);
+    return formatCurrency(minMaxStat.max.min * qty);
+  }
+
+  function getTaxes() {
+    const qty = parseInt(quantity.replace(",", ""));
+    return formatCurrency(minMaxStat.max.min * qty * 0.1);
+  }
+
+  function getBenefit() {
+    const qty = parseInt(quantity.replace(",", ""));
+    return formatCurrency(
+      minMaxStat.max.min * qty -
+        minMaxStat.min.min * qty -
+        minMaxStat.max.min * qty * 0.1
+    );
   }
 
   function getVolume() {
     const qty = parseInt(quantity.replace(",", ""));
     return formatCurrency(currentItem.packaged_volume * qty);
+  }
+
+  function onKeyDown(e: any) {
+    const { keyCode } = e;
+    let currentValue: any = quantity;
+    currentValue = currentValue.replace(/[\D\s\._\-]+/g, "");
+    currentValue = currentValue ? parseInt(currentValue, 10) : 0;
+
+    if (keyCode === 38) {
+      setQuantity((currentValue + 1).toLocaleString("en-US"));
+    } else if (keyCode === 40 && currentValue !== 0) {
+      setQuantity((currentValue - 1).toLocaleString("en-US"));
+    }
   }
 
   return (
@@ -109,10 +152,32 @@ const Calculator: React.FC<Props> = (props) => {
         </div>
       ) : (
         <>
-          <CalculatorInput onChange={onChange} type="text" value={quantity} />
-          <CalculatorVolume>{getVolume()}m3</CalculatorVolume>
+          <div>
+            <CalculatorLabel>Quantity</CalculatorLabel>
+            <CalculatorInput
+              onChange={onChange}
+              onKeyDown={onKeyDown}
+              type="text"
+              value={quantity}
+            />
+            <CalculatorVolume>{getVolume()}m3 packaged</CalculatorVolume>
+          </div>
+
           {!isEmpty(minMaxStat) ? (
-            <CalculatorTotal>+{getTotal()} isk</CalculatorTotal>
+            <CalculatorTotal>
+              <ul>
+                <li>
+                  <span>Total:</span> {getTotal()} isk
+                </li>
+                <li>
+                  <span title="Taxes are set on 10%">Taxes:</span> -{getTaxes()}{" "}
+                  isk
+                </li>
+                <li>
+                  <span>Benefit:</span> +{getBenefit()} isk
+                </li>
+              </ul>
+            </CalculatorTotal>
           ) : null}
         </>
       )}

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://esi.evetech.net/latest/";
 const axiosOptions: any = {
+  baseURL: "https://esi.evetech.net/latest/",
   method: "get",
   headers: {
     accept: "application/json",
@@ -12,42 +12,53 @@ const axiosOptions: any = {
 export default class EveOnlineAPI {
   static searchStation(stationName: string) {
     return axios.get(
-      `${BASE_URL}search/?categories=station&datasource=tranquility&language=en-us&strict=false&search=${stationName}`,
+      `search/?categories=station&datasource=tranquility&language=en-us&strict=false&search=${stationName}`,
       axiosOptions
     );
   }
 
   static getStation(stationID: string) {
     return axios.get(
-      `${BASE_URL}universe/stations/${stationID}/?datasource=tranquility`,
+      `universe/stations/${stationID}/?datasource=tranquility`,
       axiosOptions
     );
   }
 
   static searchItem(itemName: string) {
     return axios.get(
-      `${BASE_URL}search/?categories=inventory_type&datasource=tranquility&language=en-us&strict=false&search=${itemName}`,
+      `search/?categories=inventory_type&datasource=tranquility&language=en-us&strict=false&search=${itemName}`,
       axiosOptions
     );
   }
 
   static getItem(itemID: string) {
     return axios.get(
-      `${BASE_URL}universe/types/${itemID}/?datasource=tranquility`,
+      `universe/types/${itemID}/?datasource=tranquility`,
       axiosOptions
     );
   }
 
-  static marketSellOrder(regionID: string, typeID: string) {
+  static getMarketOrder(
+    regionID: string,
+    typeID: string,
+    orderType: string = "sell"
+  ) {
     return axios.get(
-      `${BASE_URL}markets/${regionID}/orders/?datasource=tranquility&order_type=sell&page=1&type_id=${typeID}`,
+      `markets/${regionID}/orders/?datasource=tranquility&order_type=${orderType}&page=1&type_id=${typeID}`,
       axiosOptions
     );
   }
 
-  static marketHistory(regionID: string, typeID: string) {
+  static getMarketHistory(regionID: string, typeID: string) {
     return axios.get(
-      `${BASE_URL}markets/${regionID}/history/?datasource=tranquility&type_id=${typeID}`,
+      `markets/${regionID}/history/?datasource=tranquility&type_id=${typeID}`,
+      axiosOptions
+    );
+  }
+
+  static getRoute(fromStationID: string, toStationID: string) {
+    return axios.get(
+      `route/${fromStationID}/${toStationID}/?datasource=tranquility&flag=secure`,
       axiosOptions
     );
   }
