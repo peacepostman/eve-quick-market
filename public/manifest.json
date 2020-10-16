@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "EveQuickMarket",
+  "name": "An eve online market deck to quickly analyze lowest and highest items values between different stations hub.",
   "icons": [
     {
       "src": "favicon.ico",
