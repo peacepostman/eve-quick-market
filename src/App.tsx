@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { ToastContainer, Slide, toast } from "react-toastify";
+import Modal from "react-modal";
 import size from "lodash/size";
 import isEmpty from "lodash/isEmpty";
 import filter from "lodash/filter";
@@ -25,13 +26,19 @@ import ItemCard from "./components/ItemCard";
 import ItemCardWrapper from "./components/ItemCardWrapper";
 import ItemSearch from "./components/ItemSearch";
 import Calculator from "./components/Calculator";
+import WatchList from "./components/WatchList";
 
 import getData from "./helpers/getData";
 import setData from "./helpers/setData";
+import getDefaultSystems from "./helpers/getDefaultSystems";
 import toastError from "./helpers/toastError";
 
+const dataSystems = getData("systems");
+
 const App: React.FC = () => {
-  const [systemsData, setSystemsData] = useState(getData("systems"));
+  const [systemsData, setSystemsData] = useState(
+    !isEmpty(dataSystems) ? dataSystems : getDefaultSystems()
+  );
   const [itemsData, setItemsData] = useState(getData("items"));
   const [currentItem, setCurrentItem] = useState<any>({});
   const [stats, setStats] = useState<any>(getData("stats", true));
@@ -39,11 +46,19 @@ const App: React.FC = () => {
   const [minMax, setMinMax] = useState<any>({});
   const [jumps, setJumps] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const systemsRefs = useRef<any>([]);
+  Modal.setAppElement("#root");
 
   useEffect(() => {
     function changeItem(e: any) {
       const { keyCode } = e;
+      console.log("keyCode", keyCode, modalIsOpen);
+      if (modalIsOpen && keyCode === 27) {
+        toggleModal();
+        return;
+      }
+
       setCurrentItem((previous: any) => {
         const currentIndex = findIndex(itemsData, (o: any) => {
           return o.value == previous.value;
@@ -70,7 +85,7 @@ const App: React.FC = () => {
       document.addEventListener("keydown", changeItem);
       return () => document.removeEventListener("keydown", changeItem);
     }
-  }, [itemsData]);
+  }, [itemsData, modalIsOpen]);
 
   useEffect(() => {
     if (showHint) {
@@ -167,10 +182,9 @@ const App: React.FC = () => {
   }
 
   function deleteSystem(index: number) {
-    let frozenStats = stats;
+    let frozenStats = { ...stats };
     delete frozenStats[index];
     setStats(setData("stats", frozenStats));
-
     let frozenSystemData = [...systemsData];
     frozenSystemData.splice(index, 1);
     setStatsLoading(true);
@@ -217,8 +231,16 @@ const App: React.FC = () => {
     setJumps(jumps);
   }
 
+  function toggleModal(e?: any) {
+    if (e) {
+      e.preventDefault();
+    }
+    setModalIsOpen((prevState) => !prevState);
+  }
+
   return (
     <MainWrapper>
+      <button onClick={toggleModal}>Moula</button>
       <ItemWrapper>
         <ItemSearch onChangeCallback={addItem} />
         <ItemCardWrapper>
@@ -262,6 +284,7 @@ const App: React.FC = () => {
           : null}
         <SystemCardHint
           systemsRef={systemsRefs}
+          loading={statsLoading}
           minMax={minMax}
           jumps={jumps}
         />
@@ -287,6 +310,15 @@ const App: React.FC = () => {
         pauseOnHover
         transition={Slide}
       />
+
+      <Modal
+        isOpen={modalIsOpen}
+        className="QuickMarket"
+        overlayClassName="QuickMarket"
+        onRequestClose={toggleModal}
+      >
+        <WatchList />
+      </Modal>
     </MainWrapper>
   );
 };

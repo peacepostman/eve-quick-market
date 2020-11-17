@@ -37,10 +37,11 @@ export default class EveOnlineAPI {
   static getMarketOrder(
     regionID: string,
     typeID: string,
-    orderType: string = "sell"
+    orderType: string = "sell",
+    page: string = "1"
   ) {
     return axios.get(
-      `markets/${regionID}/orders/?datasource=tranquility&order_type=${orderType}&page=1&type_id=${typeID}`,
+      `markets/${regionID}/orders/?datasource=tranquility&order_type=${orderType}&page=${page}&type_id=${typeID}`,
       axiosOptions
     );
   }

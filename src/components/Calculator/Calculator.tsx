@@ -65,6 +65,9 @@ const Calculator: React.FC<Props> = (props) => {
           routes[cacheName].cache_expire &&
           routes[cacheName].cache_expire > Date.now()
         ) {
+          console.log({
+            cached: true,min, max
+          })
           onCallback({ min, max }, routes[cacheName].totalJump);
           setMinMaxStat({ min, max });
         } else {
@@ -84,6 +87,9 @@ const Calculator: React.FC<Props> = (props) => {
               };
 
               setRoutes(setData("routes", routeData, true));
+              console.log({
+                cached: false,min, max
+              })
               onCallback({ min, max }, response.data.length);
               setMinMaxStat({ min, max });
             })
@@ -91,7 +97,7 @@ const Calculator: React.FC<Props> = (props) => {
         }
       }
     }
-  }, [loading, currentItem, setMinMaxStat]);
+  }, [loading, stats, currentItem, setMinMaxStat]);
 
   function onChange(e: any) {
     let input = e.target.value;

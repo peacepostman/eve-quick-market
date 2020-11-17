@@ -10,8 +10,8 @@ const SystemCardStyled = styled.div<Props>`
   display: flex;
   position: relative;
   margin: 0 20px;
-  min-width: 350px;
-  flex: 350px 0 0;
+  min-width: 250px;
+  flex: 250px 0 0;
   flex-direction: column;
   box-shadow: ${(props) =>
     props.lowest
@@ -38,6 +38,11 @@ const SystemCardStyled = styled.div<Props>`
     right: -20px;
     width: 20px;
     height: 1px;
+  }
+
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    min-width: 350px;
+    flex: 350px 0 0;
   }
 `;
 

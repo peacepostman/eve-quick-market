@@ -6,11 +6,12 @@ import formatCurrency from "./../../helpers/formatCurrency";
 interface Props {
   systemsRef: any;
   minMax: any;
+  loading: boolean;
   jumps: number;
 }
 
 const SystemCardHint: React.FC<Props> = (props) => {
-  const { systemsRef, minMax, jumps } = props;
+  const { systemsRef, minMax, jumps, loading } = props;
   const [hintStyle, setHintStyle] = useState({});
   const [direction, setDirection] = useState<"left" | "right">("left");
 
@@ -19,7 +20,7 @@ const SystemCardHint: React.FC<Props> = (props) => {
   }, [minMax]);
 
   function getRouteHint() {
-    if (systemsRef && systemsRef.current.length > 1) {
+    if (systemsRef && systemsRef.current.length > 1 && !loading) {
       const lowest = find(systemsRef.current, (element: any) => {
         return element.dataset.lowest === "true";
       });

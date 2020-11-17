@@ -11,6 +11,8 @@ import {
   SystemCardImg,
 } from "./SystemCard.styled";
 import formatCurrency from "./../../helpers/formatCurrency";
+import setChartData from "./../../helpers/setChartData";
+import setChartOptions from "./../../helpers/setChartOptions";
 
 interface Props extends React.HTMLProps<HTMLButtonElement> {
   system?: any;
@@ -37,6 +39,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const chartRef = useRef<any>(null);
   const systemCardRef = useRef<any>(null);
+  const isRetina = window.devicePixelRatio > 1;
 
   useLayoutEffect(() => {
     if (ref) {
@@ -67,6 +70,38 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
     setTooltipData(data);
   };
 
+  const tooltipCustom = (tooltipModel: any) => {
+    // if chart is not defined, return early
+    const chart = chartRef.current;
+    if (!chart) {
+      return;
+    }
+
+    if (tooltipModel.opacity === 0) {
+      setShowTooltip(false);
+      return;
+    } else if (!showTooltip) {
+      setShowTooltip(true);
+    }
+
+    const index = tooltipModel.dataPoints[0].index;
+    const position = chart.chartInstance.canvas.getBoundingClientRect();
+    const left = position.left + tooltipModel.caretX - (index > 5 ? 180 : 0);
+    const top = position.top + tooltipModel.caretY + 5;
+
+    if (
+      tooltipData.index !== tooltipModel.dataPoints[0].index &&
+      tooltipModel.dataPoints[0].left !== left &&
+      tooltipModel.dataPoints[0].top !== top
+    ) {
+      setPositionAndData({
+        top,
+        left,
+        index,
+      });
+    }
+  };
+
   return (
     <SystemCardStyled
       ref={systemCardRef}
@@ -75,6 +110,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
       data-lowest={lowest}
       highest={highest}
       data-highest={highest}
+      data-id={system ? system.value : 0}
     >
       {system ? (
         <>
@@ -111,117 +147,19 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
                 <div className="system-card-graph">
                   <Line
                     height={80}
-                    width={350}
+                    width={isRetina ? 350 : 250}
                     ref={chartRef}
-                    data={{
-                      labels: map(
+                    data={setChartData(
+                      map(
                         stats[system.value][currentItem.value].history,
                         "date"
                       ),
-                      datasets: [
-                        {
-                          label: "Lowest value",
-                          fill: false,
-                          lineTension: 0.1,
-                          backgroundColor: "rgba(255,255,255,0.6)",
-                          borderWidth: 1,
-                          borderColor: "rgba(255,255,255,.6)",
-                          borderCapStyle: "butt",
-                          borderDash: [],
-                          borderDashOffset: 0.0,
-                          borderJoinStyle: "miter",
-                          pointBorderColor: "rgba(255,255,255,.6)",
-                          pointBackgroundColor: "rgba(255,255,255,.6)",
-                          pointBorderWidth: 1,
-                          pointHoverRadius: 5,
-                          pointHoverBackgroundColor: "rgba(255,255,255,.6)",
-                          pointHoverBorderWidth: 1,
-                          pointRadius: 1,
-                          pointHitRadius: 10,
-                          data: map(
-                            stats[system.value][currentItem.value].history,
-                            "lowest"
-                          ),
-                        },
-                      ],
-                    }}
-                    options={{
-                      layout: {
-                        padding: {
-                          left: 0,
-                          right: 0,
-                          top: 5,
-                          bottom: 5,
-                        },
-                      },
-                      legend: {
-                        display: false,
-                      },
-                      scales: {
-                        xAxes: [
-                          {
-                            gridLines: {
-                              tickMarkLength: 0,
-                              display: false,
-                            },
-                            ticks: {
-                              display: false,
-                            },
-                          },
-                        ],
-                        yAxes: [
-                          {
-                            gridLines: {
-                              tickMarkLength: 0,
-                              display: false,
-                            },
-                            ticks: {
-                              display: false,
-                            },
-                          },
-                        ],
-                      },
-                      tooltips: {
-                        enabled: false,
-                        mode: "x",
-                        intersect: false,
-                        custom: (tooltipModel: any) => {
-                          // if chart is not defined, return early
-                          const chart = chartRef.current;
-                          if (!chart) {
-                            return;
-                          }
-
-                          if (tooltipModel.opacity === 0) {
-                            setShowTooltip(false);
-                            return;
-                          } else if (!showTooltip) {
-                            setShowTooltip(true);
-                          }
-
-                          const index = tooltipModel.dataPoints[0].index;
-                          const position = chart.chartInstance.canvas.getBoundingClientRect();
-                          const left =
-                            position.left +
-                            tooltipModel.caretX -
-                            (index > 5 ? 180 : 0);
-                          const top = position.top + tooltipModel.caretY + 5;
-
-                          if (
-                            tooltipData.index !==
-                              tooltipModel.dataPoints[0].index &&
-                            tooltipModel.dataPoints[0].left !== left &&
-                            tooltipModel.dataPoints[0].top !== top
-                          ) {
-                            setPositionAndData({
-                              top,
-                              left,
-                              index,
-                            });
-                          }
-                        },
-                      },
-                    }}
+                      map(
+                        stats[system.value][currentItem.value].history,
+                        "lowest"
+                      )
+                    )}
+                    options={setChartOptions(tooltipCustom)}
                   />
                   {showTooltip && tooltipData.index >= 0 ? (
                     <SystemToolTip

@@ -45,9 +45,9 @@ const ItemCardStyled = styled.div<Props>`
   position: relative;
   cursor: pointer;
   margin: 0 20px;
-  min-width: 120px;
-  height: 120px;
-  flex: 120px 0 0;
+  min-width: 80px;
+  height: 80px;
+  flex: 80px 0 0;
   box-shadow: 0 4px 12px 2px rgba(0, 0, 0, 0.1);
   transition: opacity 0.2s ease-in;
   background-color: rgba(15, 32, 39, 1);
@@ -82,6 +82,12 @@ const ItemCardStyled = styled.div<Props>`
     bottom: 0;
     width: 100%;
     height: 100%;
+  }
+
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    min-width: 120px;
+    height: 120px;
+    flex: 120px 0 0;
   }
 `;
 

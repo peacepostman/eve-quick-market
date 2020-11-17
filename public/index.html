@@ -26,6 +26,29 @@
         margin: 0;
         padding: 0;
       }
+      .ReactModal__Overlay {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        z-index: 10;
+        backdrop-filter: blur(6px);
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .ReactModal__Content {
+        overflow: hidden;
+        position: absolute;
+        top: 40px;
+        left: 40px;
+        right: 40px;
+        bottom: 40px;
+        background-color: rgba(15, 32, 39, 1);
+        color: #ddd;
+        overflow: auto;
+        outline: none;
+        z-index: 11;
+      }
     </style>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
