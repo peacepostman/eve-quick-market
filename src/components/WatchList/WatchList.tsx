@@ -35,6 +35,13 @@ const WatchList = (props: Props) => {
   const regionID = station.region_id;
   const stationID = station.value;
 
+  // sell order quantity * sell order price
+  const MINIMUM_TOTAL_SELL_AMOUNT = 500000;
+  // gap in percent between first sell order and second sell order
+  const GAP_BETWEEN_TWO_FIRST_SELLS_ORDERS = 10;
+  // gap in percent between first sell order and first buy order
+  const GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER = 5;
+
   useEffect(() => {
     getMarketOrders();
   }, []);
@@ -170,29 +177,33 @@ const WatchList = (props: Props) => {
         ["price"],
         ["asc"]
       );
-      if (buyOrders.length > 0 && sellOrders.length > 0) {
+      if (buyOrders.length > 0 && sellOrders.length > 1) {
         const minSellOrder: any = minBy(sellOrders, "price");
         const maxBuyOrder: any = maxBy(buyOrders, "price");
 
         if (
           minSellOrder &&
           maxBuyOrder &&
-          minSellOrder.price < maxBuyOrder.price * 1.05
+          minSellOrder.price <
+            maxBuyOrder.price *
+              (100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER / 100) &&
+          minSellOrder.price * minSellOrder.volume_remain >=
+            MINIMUM_TOTAL_SELL_AMOUNT
         ) {
-          if (sellOrders[1]) {
-            const priceDifferenceWithSecondOrder =
-              100 *
-              Math.abs(
-                (sellOrders[1].price - minSellOrder.price) /
-                  ((sellOrders[1].price + minSellOrder.price) / 2)
-              );
-            if (priceDifferenceWithSecondOrder > 10) {
-              filteredOrders.push({
-                sell: minSellOrder,
-                second_sell: sellOrders[1],
-                buy: maxBuyOrder,
-              });
-            }
+          const priceDifferenceWithSecondOrder =
+            100 *
+            Math.abs(
+              (sellOrders[1].price - minSellOrder.price) /
+                ((sellOrders[1].price + minSellOrder.price) / 2)
+            );
+          if (
+            priceDifferenceWithSecondOrder > GAP_BETWEEN_TWO_FIRST_SELLS_ORDERS
+          ) {
+            filteredOrders.push({
+              sell: minSellOrder,
+              second_sell: sellOrders[1],
+              buy: maxBuyOrder,
+            });
           }
         }
       }
