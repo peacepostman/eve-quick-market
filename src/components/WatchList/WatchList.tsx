@@ -160,6 +160,7 @@ const WatchList = (props: any) => {
             if (priceDifferenceWithSecondOrder > 10) {
               filteredOrders.push({
                 sell: minSellOrder,
+                second_sell: sellOrders[1],
                 buy: maxBuyOrder,
               });
             }
@@ -181,10 +182,11 @@ const WatchList = (props: any) => {
               <th>Item Name</th>
               <th>Total available</th>
               <th>sell order price</th>
+              <th>second sell order price</th>
               <th>buy order price</th>
-              <th>average price</th>
-              <th>average order count</th>
-              <th>average volume</th>
+              <th>average price 7 days</th>
+              <th>average order count 7 days</th>
+              <th>average volume 7 days</th>
             </tr>
           </thead>
           <tbody>
@@ -210,6 +212,7 @@ const WatchList = (props: any) => {
 
                   <td>{formatCurrency(item.sell.volume_remain)} </td>
                   <td>{formatCurrency(item.sell.price)} ISK</td>
+                  <td>{formatCurrency(item.second_sell.price)} ISK</td>
                   <td>{formatCurrency(item.buy.price)} ISK</td>
                   <td>{formatCurrency(item.median.price_average)} ISK</td>
                   <td>{formatCurrency(item.median.order_count_average)}</td>
