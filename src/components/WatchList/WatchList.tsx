@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "react-toastify";
+
 import axios from "axios";
 import minBy from "lodash/minBy";
 import maxBy from "lodash/maxBy";
@@ -17,10 +19,11 @@ import { WatchListStyled } from "./WatchList.styled";
 
 interface Props {
   station: any;
+  addToItems(item: any): void;
 }
 
 const WatchList = (props: Props) => {
-  const { station } = props;
+  const { station, addToItems } = props;
   const [loadingWatched, setLoadingWatched] = useState<boolean>(false);
   const [isFetched, setIsFetched] = useState<boolean>(false);
   const [rawItems, setRawItems] = useState<any>([]);
@@ -50,8 +53,8 @@ const WatchList = (props: Props) => {
 
   const getMarketOrders = (page: number = 1) => {
     setLoadingWatched(true);
-    EveOnlineAPI.getMarketOrder(regionID, "", "all", page.toString()).then(
-      (orders: any) => {
+    EveOnlineAPI.getMarketOrder(regionID, "", "all", page.toString())
+      .then((orders: any) => {
         setRawItems((prev: any) => prev.concat(orders.data));
         setRefreshTimeArray((prev: any) =>
           prev.concat(new Date(orders.headers.expires).getTime())
@@ -61,8 +64,10 @@ const WatchList = (props: Props) => {
         } else {
           setIsFetched(true);
         }
-      }
-    );
+      })
+      .catch((error: any) => {
+        console.log("getMarketOrder::error", error);
+      });
   };
 
   const finalProcess = useCallback(() => {
@@ -85,7 +90,7 @@ const WatchList = (props: Props) => {
               };
             })
             .catch((error: any) => {
-              console.log("error", error);
+              console.log("getMarketHistory::error", error);
             })
         )
       )
@@ -102,16 +107,29 @@ const WatchList = (props: Props) => {
           axios
             .all(
               finalArray.map((item: any) =>
-                EveOnlineAPI.getItem(item.sell.type_id.toString()).then(
-                  (itemInfo: any) => {
+                EveOnlineAPI.getItem(item.sell.type_id.toString())
+                  .then((itemInfo: any) => {
                     return {
                       type_id: itemInfo.data.type_id,
-                      name: itemInfo.data.name,
+                      value: itemInfo.data.type_id,
+                      label: itemInfo.data.name,
+                      image_type: itemInfo.data.name
+                        .toLowerCase()
+                        .includes("blueprint")
+                        ? "bp"
+                        : !itemInfo.data.icon_id
+                        ? itemInfo.data.graphic_id
+                          ? "render"
+                          : null
+                        : "icon",
                       volume: itemInfo.data.volume,
                       packaged_volume: itemInfo.data.packaged_volume,
+                      description: itemInfo.data.description,
                     };
-                  }
-                )
+                  })
+                  .catch((error: any) => {
+                    console.log("getItem::error", error);
+                  })
               )
             )
             .then(
@@ -125,9 +143,15 @@ const WatchList = (props: Props) => {
                 setWatchedItems(final);
                 setLoadingWatched(false);
               })
-            );
+            )
+            .catch((error: any) => {
+              console.log("getItems::error", error);
+            });
         })
-      );
+      )
+      .catch((error: any) => {
+        console.log("getMarketHistories::error", error);
+      });
   }, [filteredItems]);
 
   const processData = useCallback(() => {
@@ -176,6 +200,20 @@ const WatchList = (props: Props) => {
     setFilteredItems(filteredOrders);
   }, [rawItems, refreshTimeArray]);
 
+  function addToMyItems(e: any, item: any) {
+    e.preventDefault();
+    addToItems(item);
+    toast.success("Successfully added to items list", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  }
+
   return (
     <WatchListStyled>
       <div>
@@ -217,7 +255,9 @@ const WatchList = (props: Props) => {
                       src={`https://images.evetech.net/types/${item.sell.type_id}/icon?size=64`}
                       style={{ marginRight: "5px", verticalAlign: "middle" }}
                     />
-                    <span>{item.infos.name}</span>
+                    <a href="" onClick={(e) => addToMyItems(e, item.infos)}>
+                      {item.infos.label}
+                    </a>
                   </td>
 
                   <td>{formatCurrency(item.sell.volume_remain)} </td>

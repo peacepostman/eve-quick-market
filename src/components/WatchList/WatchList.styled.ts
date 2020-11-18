@@ -30,6 +30,14 @@ const WatchListStyled = styled.div`
     tr td:first-child {
       border-left: none;
     }
+
+    tr td a {
+      color: #fff;
+      &:hover {
+        color: #f2f2f2;
+        text-decoration: underline;
+      }
+    }
   }
 `;
 

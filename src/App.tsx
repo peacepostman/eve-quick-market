@@ -248,6 +248,9 @@ const App: React.FC = () => {
   function openSystemAnomaly(e: any, system: any) {
     e.preventDefault();
     setCurrentSystem(system);
+    if (currentSystem && system.value === currentSystem.value && !modalIsOpen) {
+      toggleModal(e);
+    }
   }
 
   return (
@@ -329,7 +332,7 @@ const App: React.FC = () => {
         overlayClassName="QuickMarket"
         onRequestClose={toggleModal}
       >
-        <WatchList station={currentSystem} />
+        <WatchList station={currentSystem} addToItems={addItem} />
       </Modal>
     </MainWrapper>
   );
