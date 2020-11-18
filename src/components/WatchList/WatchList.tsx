@@ -157,17 +157,12 @@ const WatchList = (props: any) => {
                 (sellOrders[1].price - minSellOrder.price) /
                   ((sellOrders[1].price + minSellOrder.price) / 2)
               );
-            if (priceDifferenceWithSecondOrder > 5) {
+            if (priceDifferenceWithSecondOrder > 10) {
               filteredOrders.push({
                 sell: minSellOrder,
                 buy: maxBuyOrder,
               });
             }
-          } else {
-            filteredOrders.push({
-              sell: minSellOrder,
-              buy: maxBuyOrder,
-            });
           }
         }
       }
