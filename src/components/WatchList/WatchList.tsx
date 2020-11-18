@@ -15,7 +15,12 @@ import EveOnlineAPI from "./../../model/eveOnlineApi";
 import formatCurrency from "./../../helpers/formatCurrency";
 import { WatchListStyled } from "./WatchList.styled";
 
-const WatchList = (props: any) => {
+interface Props {
+  station: any;
+}
+
+const WatchList = (props: Props) => {
+  const { station } = props;
   const [loadingWatched, setLoadingWatched] = useState<boolean>(false);
   const [isFetched, setIsFetched] = useState<boolean>(false);
   const [rawItems, setRawItems] = useState<any>([]);
@@ -24,8 +29,8 @@ const WatchList = (props: any) => {
   const [refreshDate, setRefreshDate] = useState<any>(null);
   const [refreshTimeArray, setRefreshTimeArray] = useState<any>([]);
 
-  const regionID = "10000002";
-  const stationID = 60003760;
+  const regionID = station.region_id;
+  const stationID = station.value;
 
   useEffect(() => {
     getMarketOrders();
@@ -173,8 +178,13 @@ const WatchList = (props: any) => {
 
   return (
     <WatchListStyled>
+      <div>
+        <h1>Sell orders anomalies for {station.label}</h1>
+      </div>
       {loadingWatched ? (
-        <Loader />
+        <div style={{ margin: "60px 0" }}>
+          <Loader color={"#fff"} />
+        </div>
       ) : (
         <table>
           <thead>

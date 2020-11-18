@@ -5,8 +5,12 @@ const WatchListStyled = styled.div`
     width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
+    position: relative;
     tr th {
       text-align: left;
+      position: sticky;
+      top: 0;
+      background-color: rgba(15, 32, 39, 1);
     }
     tr th,
     tr td {

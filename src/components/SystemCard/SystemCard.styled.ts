@@ -91,6 +91,29 @@ const SystemCardContent = styled.div`
   }
 `;
 
+const SystemCardAnomaly = styled.a`
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  color: #333;
+  border-radius: 4px;
+  padding: 10px 16px;
+  margin: 10px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s ease-in;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  img {
+    width: 24px;
+    height: 24px;
+  }
+`;
+
 const SystemCardDelete = styled.a`
   position: absolute;
   top: 0;
@@ -123,6 +146,7 @@ export {
   SystemCardStyled,
   SystemCardImg,
   SystemCardContent,
+  SystemCardAnomaly,
   SystemCardDelete,
   SystemToolTip,
 };

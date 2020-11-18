@@ -41,6 +41,7 @@ const App: React.FC = () => {
   );
   const [itemsData, setItemsData] = useState(getData("items"));
   const [currentItem, setCurrentItem] = useState<any>({});
+  const [currentSystem, setCurrentSystem] = useState<any>(null);
   const [stats, setStats] = useState<any>(getData("stats", true));
   const [statsLoading, setStatsLoading] = useState(false);
   const [minMax, setMinMax] = useState<any>({});
@@ -105,6 +106,12 @@ const App: React.FC = () => {
       getItemStat();
     }
   }, [currentItem, systemsData, itemsData]);
+
+  useEffect(() => {
+    if (currentSystem) {
+      toggleModal(null);
+    }
+  }, [currentSystem]);
 
   function getItemStat() {
     setStatsLoading(true);
@@ -238,9 +245,13 @@ const App: React.FC = () => {
     setModalIsOpen((prevState) => !prevState);
   }
 
+  function openSystemAnomaly(e: any, system: any) {
+    e.preventDefault();
+    setCurrentSystem(system);
+  }
+
   return (
     <MainWrapper>
-      <button onClick={toggleModal}>Moula</button>
       <ItemWrapper>
         <ItemSearch onChangeCallback={addItem} />
         <ItemCardWrapper>
@@ -279,6 +290,7 @@ const App: React.FC = () => {
                 }
                 loading={statsLoading}
                 deleteSystem={() => deleteSystem(index)}
+                openSystemAnomaly={openSystemAnomaly}
               />
             ))
           : null}
@@ -317,7 +329,7 @@ const App: React.FC = () => {
         overlayClassName="QuickMarket"
         onRequestClose={toggleModal}
       >
-        <WatchList />
+        <WatchList station={currentSystem} />
       </Modal>
     </MainWrapper>
   );

@@ -6,6 +6,7 @@ import Loader from "./../Loader";
 import {
   SystemCardStyled,
   SystemCardDelete,
+  SystemCardAnomaly,
   SystemCardContent,
   SystemToolTip,
   SystemCardImg,
@@ -22,6 +23,7 @@ interface Props extends React.HTMLProps<HTMLButtonElement> {
   lowest?: boolean;
   highest?: boolean;
   deleteSystem?(system: any): void;
+  openSystemAnomaly?(e: any, system: any): void;
 }
 
 const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
@@ -33,6 +35,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
     loading,
     lowest,
     highest,
+    openSystemAnomaly,
   } = props;
   const [image] = useState(Math.floor(Math.random() * 6) + 1);
   const [tooltipData, setTooltipData] = useState<any>({});
@@ -120,6 +123,13 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
             highest={highest}
             src={"img/" + image + ".jpg"}
           />
+          <SystemCardAnomaly
+            onClick={(e) =>
+              openSystemAnomaly ? openSystemAnomaly(e, system) : null
+            }
+          >
+            $
+          </SystemCardAnomaly>
           <SystemCardDelete onClick={deleteSystem}>
             <img
               alt="Delete system"
