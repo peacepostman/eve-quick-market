@@ -398,7 +398,7 @@ const WatchList = (props: Props) => {
                             alt={item.sell.type_id}
                             width="24"
                             height="24"
-                            src={`https://images.evetech.net/types/${item.sell.type_id}/icon?size=64`}
+                            src={`https://images.evetech.net/types/${item.sell.type_id}/${item.infos.image_type}?size=64`}
                             style={{
                               marginRight: "5px",
                               verticalAlign: "middle",
