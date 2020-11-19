@@ -1,6 +1,14 @@
 import styled from "styled-components";
 
+interface Props {
+  disabled: boolean;
+}
+
 const WatchListStyled = styled.div`
+  h1 {
+    font-size: 24px;
+  }
+
   table {
     width: 100%;
     border-spacing: 0;
@@ -9,7 +17,7 @@ const WatchListStyled = styled.div`
     tr th {
       text-align: left;
       position: sticky;
-      top: 0;
+      top: -1px;
       background-color: rgba(15, 32, 39, 1);
     }
     tr th,
@@ -31,6 +39,10 @@ const WatchListStyled = styled.div`
       border-left: none;
     }
 
+    tbody tr:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
     tr td a {
       color: #fff;
       &:hover {
@@ -41,4 +53,30 @@ const WatchListStyled = styled.div`
   }
 `;
 
-export { WatchListStyled };
+const WatchListHeaderStyled = styled.header`
+  padding: 20px 80px 20px 20px;
+  background-color: rgba(15, 32, 39, 0.7);
+`;
+
+const WatchListReload = styled.a<Props>`
+  padding: 0;
+  border: none;
+  outline: none;
+  width: 60px;
+  height: 60px;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 20px;
+  font-size: 14px;
+  color: #fbb438;
+  background-color: transparent;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+
+  .countdown {
+    margin-top: -10px;
+  }
+`;
+
+export { WatchListStyled, WatchListHeaderStyled, WatchListReload };
