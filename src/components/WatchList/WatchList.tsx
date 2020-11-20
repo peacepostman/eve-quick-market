@@ -328,6 +328,7 @@ const WatchList = (props: Props) => {
 
   useEffect(() => {
     if (orderByDifference) {
+      setOrderByMarginISK(null);
       setWatchedItems((prev) =>
         orderBy(
           prev,
@@ -340,6 +341,7 @@ const WatchList = (props: Props) => {
 
   useEffect(() => {
     if (orderByMarginISK) {
+      setOrderByDifference(null);
       setWatchedItems((prev) =>
         orderBy(prev, ["margin_between_two_first_orders"], [orderByMarginISK])
       );
