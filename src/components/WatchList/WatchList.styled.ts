@@ -8,6 +8,40 @@ const WatchListStyled = styled.div`
   h1 {
     font-size: 24px;
   }
+  .arrow-wrapper {
+    margin-left: 5px;
+    display: inline-block;
+  }
+
+  .arrow:after {
+    border: solid transparent;
+    content: "";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-color: transparent;
+    border-bottom-color: rgba(221, 221, 221, 0.4);
+    border-width: 6px;
+  }
+
+  .arrow {
+    position: relative;
+    display: block;
+    width: 12px;
+    height: 10px;
+    &.is-active:after {
+      border-bottom-color: #ddd;
+    }
+    &.is-down:after {
+      margin-top: 5px;
+      border-bottom-color: transparent;
+      border-top-color: rgba(221, 221, 221, 0.4);
+    }
+    &.is-active.is-down:after {
+      border-top-color: #ddd;
+    }
+  }
 
   table {
     width: 100%;
@@ -19,6 +53,10 @@ const WatchListStyled = styled.div`
       position: sticky;
       top: -1px;
       background-color: rgba(15, 32, 39, 1);
+      a {
+        color: #ddd;
+        text-decoration: none;
+      }
     }
     tr th,
     tr td {
@@ -41,6 +79,9 @@ const WatchListStyled = styled.div`
 
     tbody tr:hover {
       background-color: rgba(255, 255, 255, 0.2);
+      td .copy {
+        opacity: 1;
+      }
     }
 
     tr td a {
@@ -48,6 +89,16 @@ const WatchListStyled = styled.div`
       &:hover {
         color: #f2f2f2;
         text-decoration: underline;
+      }
+    }
+
+    tr td .copy {
+      opacity: 0;
+      cursor: pointer;
+      margin-left: 10px;
+      float: right;
+      img {
+        vertical-align: middle;
       }
     }
   }

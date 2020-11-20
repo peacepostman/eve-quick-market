@@ -4,6 +4,7 @@ import {
   CircularProgressbarWithChildren,
   buildStyles,
 } from "react-circular-progressbar";
+import CopyToClipboard from "react-copy-to-clipboard";
 
 import axios from "axios";
 import minBy from "lodash/minBy";
@@ -60,6 +61,7 @@ const WatchList = (props: Props) => {
 
   const [strictMode, setStrictMode] = useState(false);
   const [orderByDifference, setOrderByDifference] = useState<any>(null);
+  const [orderByMarginISK, setOrderByMarginISK] = useState<any>(null);
 
   const regionID = station.region_id;
   const stationID = station.value;
@@ -237,13 +239,18 @@ const WatchList = (props: Props) => {
           ) {
             filteredOrders.push({
               sell: minSellOrder,
+              sell_total: sellOrders.length,
               second_sell: sellOrders[1],
               difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
+              margin_between_two_first_orders:
+                (sellOrders[1].price - minSellOrder.price) *
+                minSellOrder.volume_remain,
               strict_anomaly:
                 minSellOrder.price <
                 maxBuyOrder.price *
                   ((100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER) / 100),
               buy: maxBuyOrder,
+              buy_total: buyOrders.length,
             });
           }
         }
@@ -293,9 +300,28 @@ const WatchList = (props: Props) => {
     setStrictMode(!strictMode);
   }
 
+  function copySuccess() {
+    toast.success("Item name copied to clipboard", {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  }
+
   function sortByDifference(e: any) {
     e.preventDefault();
     setOrderByDifference((prev: any) =>
+      !prev || prev === "desc" ? "asc" : "desc"
+    );
+  }
+
+  function sortByMarginISK(e: any) {
+    e.preventDefault();
+    setOrderByMarginISK((prev: any) =>
       !prev || prev === "desc" ? "asc" : "desc"
     );
   }
@@ -311,6 +337,14 @@ const WatchList = (props: Props) => {
       );
     }
   }, [orderByDifference]);
+
+  useEffect(() => {
+    if (orderByMarginISK) {
+      setWatchedItems((prev) =>
+        orderBy(prev, ["margin_between_two_first_orders"], [orderByMarginISK])
+      );
+    }
+  }, [orderByMarginISK]);
 
   return (
     <WatchListStyled>
@@ -363,18 +397,58 @@ const WatchList = (props: Props) => {
           <thead>
             <tr>
               <th>Item Name</th>
-              <th>Total available</th>
-              <th>sell order price</th>
-              <th>second sell order price</th>
+              <th>Total</th>
+              <th>1st sell (2nd sell)</th>
+              <th>1st buy</th>
               <th>
                 <a href="" onClick={sortByDifference}>
-                  Difference
+                  Margin
                 </a>
+                <div className="arrow-wrapper">
+                  <span
+                    className={
+                      "arrow" +
+                      (orderByDifference && orderByDifference === "asc"
+                        ? " is-active"
+                        : "")
+                    }
+                  ></span>
+                  <span
+                    className={
+                      "arrow is-down" +
+                      (orderByDifference && orderByDifference === "desc"
+                        ? " is-active"
+                        : "")
+                    }
+                  ></span>
+                </div>
               </th>
-              <th>buy order price</th>
-              <th>average price 7 days</th>
-              <th>average order count 7 days</th>
-              <th>average volume 7 days</th>
+              <th>
+                <a href="" onClick={sortByMarginISK}>
+                  Margin ISK
+                </a>
+                <div className="arrow-wrapper">
+                  <span
+                    className={
+                      "arrow" +
+                      (orderByMarginISK && orderByMarginISK === "asc"
+                        ? " is-active"
+                        : "")
+                    }
+                  ></span>
+                  <span
+                    className={
+                      "arrow is-down" +
+                      (orderByMarginISK && orderByMarginISK === "desc"
+                        ? " is-active"
+                        : "")
+                    }
+                  ></span>
+                </div>
+              </th>
+              <th>Price 7d</th>
+              <th>Order 7d</th>
+              <th>Vol 7d</th>
             </tr>
           </thead>
           <tbody>
@@ -389,6 +463,7 @@ const WatchList = (props: Props) => {
                       <td
                         style={{
                           verticalAlign: "middle",
+                          position: "relative",
                           height: "24px",
                           lineHeight: "24px",
                         }}
@@ -409,16 +484,41 @@ const WatchList = (props: Props) => {
                         <a href="" onClick={(e) => addToMyItems(e, item.infos)}>
                           {item.infos.label}
                         </a>
+                        <span className="copy">
+                          <CopyToClipboard
+                            text={item.infos.label}
+                            onCopy={copySuccess}
+                          >
+                            <img
+                              src="img/copy.svg"
+                              width="22"
+                              height="22"
+                              style={{
+                                marginLeft: "5px",
+                                verticalAlign: "middle",
+                              }}
+                            />
+                          </CopyToClipboard>
+                        </span>
                       </td>
-
                       <td>{formatCurrency(item.sell.volume_remain)} </td>
-                      <td>{formatCurrency(item.sell.price)} ISK</td>
-                      <td>{formatCurrency(item.second_sell.price)} ISK</td>
+                      <td>
+                        <span style={{ display: "block" }}>
+                          {formatCurrency(item.sell.price)} ISK{" "}
+                        </span>
+                        <small style={{ display: "block" }}>
+                          ({formatCurrency(item.second_sell.price)} ISK)
+                        </small>
+                      </td>
+                      <td>{formatCurrency(item.buy.price)} ISK</td>
                       <td>
                         {formatCurrency(item.difference_with_second_sell_order)}{" "}
                         %
                       </td>
-                      <td>{formatCurrency(item.buy.price)} ISK</td>
+                      <td>
+                        {formatCurrency(item.margin_between_two_first_orders)}{" "}
+                        ISK
+                      </td>
                       <td>{formatCurrency(item.median.price_average)} ISK</td>
                       <td>{formatCurrency(item.median.order_count_average)}</td>
                       <td>{formatCurrency(item.median.volume_average)}</td>
