@@ -332,6 +332,9 @@ const App: React.FC = () => {
         overlayClassName="QuickMarket"
         onRequestClose={toggleModal}
       >
+        <a href="" className="modal-close" onClick={toggleModal}>
+          &times;
+        </a>
         <WatchList station={currentSystem} addToItems={addItem} />
       </Modal>
     </MainWrapper>

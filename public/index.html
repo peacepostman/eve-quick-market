@@ -38,15 +38,32 @@
       .ReactModal__Content {
         overflow: hidden;
         position: absolute;
-        top: 40px;
-        left: 40px;
-        right: 40px;
-        bottom: 40px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         background-color: rgba(15, 32, 39, 1);
         color: #ddd;
         overflow: auto;
         outline: none;
         z-index: 11;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        text-decoration: none;
+        padding: 4px 7px;
+        font-size: 14px;
+        line-height: 1;
+        color: rgba(221, 221, 221, 0.7);
+        cursor: pointer;
+        border: 1px solid rgba(221, 221, 221, 0.7);
+      }
+      .modal-close:hover {
+        color: rgba(221, 221, 221, 1);
+        border: 1px solid rgba(221, 221, 221, 1);
       }
     </style>
     <!--

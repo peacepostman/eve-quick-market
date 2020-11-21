@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { toast } from "react-toastify";
+import React, { useState, useEffect, useMemo } from "react";
+
 import {
   CircularProgressbarWithChildren,
   buildStyles,
 } from "react-circular-progressbar";
-import CopyToClipboard from "react-copy-to-clipboard";
 
 import axios from "axios";
 import minBy from "lodash/minBy";
 import maxBy from "lodash/maxBy";
-import max from "lodash/max";
 import meanBy from "lodash/meanBy";
 import compact from "lodash/compact";
 import groupBy from "lodash/groupBy";
@@ -18,16 +16,20 @@ import filter from "lodash/filter";
 import take from "lodash/take";
 import find from "lodash/find";
 import reverse from "lodash/reverse";
-import includes from "lodash/includes";
-import Loader from "./../Loader";
+
 import EveOnlineAPI from "./../../model/eveOnlineApi";
 
+import Loader from "./../Loader";
 import CountDown from "./../CountDown";
+import WatchListTable from "./WatchListTable";
+import WatchListTableItem from "./WatchListTableItem";
+
 import formatCurrency from "./../../helpers/formatCurrency";
 import getData from "./../../helpers/getData";
 import setData from "./../../helpers/setData";
 import {
   WatchListStyled,
+  WatchListLoaderStyled,
   WatchListHeaderStyled,
   WatchListReload,
 } from "./WatchList.styled";
@@ -55,13 +57,8 @@ const WatchList = (props: Props) => {
     hasStoredDate ? Number(hasStoredDate[0]) : null
   );
 
-  const [refreshTimeArray, setRefreshTimeArray] = useState<any>([]);
   const [initialEndDate, setInitialEndDate] = useState<any>();
   const [percentLeft, setPercentLeft] = useState(100);
-
-  const [strictMode, setStrictMode] = useState(false);
-  const [orderByDifference, setOrderByDifference] = useState<any>(null);
-  const [orderByMarginISK, setOrderByMarginISK] = useState<any>(null);
 
   const regionID = station.region_id;
   const stationID = station.value;
@@ -78,8 +75,9 @@ const WatchList = (props: Props) => {
       !watchedItems ||
       (watchedItems && refreshDate && refreshDate < Date.now())
     ) {
+      console.log("getMarketOrders");
       setCanRefresh(false);
-      getMarketOrders();
+      getMarketOrders(1, []);
     } else {
       setInitialEndDate(refreshDate - Date.now());
     }
@@ -87,36 +85,102 @@ const WatchList = (props: Props) => {
 
   useEffect(() => {
     if (isFetched) {
+      console.log("processData");
       processData();
     }
   }, [isFetched]);
 
   useEffect(() => {
     if (filteredItems.length > 0) {
+      console.log("finalProcess");
       finalProcess();
     }
   }, [filteredItems]);
 
-  const getMarketOrders = (page: number = 1) => {
+  function getMarketOrders(page: number = 1, itemsArray: any[]) {
     setLoadingWatched(true);
     EveOnlineAPI.getMarketOrder(regionID, "", "all", page.toString())
       .then((orders: any) => {
-        setRawItems((prev: any) => prev.concat(orders.data));
-        setRefreshTimeArray((prev: any) =>
-          prev.concat(new Date(orders.headers.expires).getTime())
-        );
+        itemsArray = itemsArray.concat(orders.data);
+        if (page === 1) {
+          setRefreshDate(new Date(orders.headers.expires).getTime());
+        }
         if (parseInt(orders.headers["x-pages"]) > page) {
-          getMarketOrders(page + 1);
+          getMarketOrders(page + 1, itemsArray);
         } else {
+          console.log("theEnd");
+          setRawItems(itemsArray);
           setIsFetched(true);
         }
       })
       .catch((error: any) => {
-        console.log("getMarketOrder::error", error);
+        console.log("getMarketOrder::error::skippingPage", page);
+        getMarketOrders(page + 1, itemsArray);
       });
-  };
+  }
 
-  const finalProcess = useCallback(() => {
+  function processData() {
+    const groupedBy: any = groupBy(
+      filter(compact(rawItems), { location_id: stationID }),
+      "type_id"
+    );
+    const filteredOrders: any = [];
+    for (const [key, value] of Object.entries(groupedBy)) {
+      // @ts-ignore
+      const buyOrders = filter(value, { is_buy_order: true });
+      // @ts-ignore
+      const sellOrders: any = orderBy(
+        // @ts-ignore
+        filter(value, { is_buy_order: false }),
+        ["price"],
+        ["asc"]
+      );
+      if (buyOrders.length > 0 && sellOrders.length > 1) {
+        const minSellOrder: any = minBy(sellOrders, "price");
+        const maxBuyOrder: any = maxBy(buyOrders, "price");
+
+        if (
+          minSellOrder &&
+          maxBuyOrder &&
+          minSellOrder.price * minSellOrder.volume_remain >=
+            MINIMUM_TOTAL_SELL_AMOUNT
+        ) {
+          const pricePercentageDifferenceWithSecondOrder =
+            100 *
+            Math.abs(
+              (sellOrders[1].price - minSellOrder.price) /
+                ((sellOrders[1].price + minSellOrder.price) / 2)
+            );
+          if (
+            pricePercentageDifferenceWithSecondOrder >
+            GAP_BETWEEN_TWO_FIRST_SELLS_ORDERS
+          ) {
+            filteredOrders.push({
+              sell: minSellOrder,
+              sell_total: sellOrders.length,
+              second_sell: sellOrders[1],
+              difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
+              margin_between_two_first_orders:
+                (sellOrders[1].price - minSellOrder.price) *
+                minSellOrder.volume_remain,
+              strict_anomaly:
+                minSellOrder.price <
+                maxBuyOrder.price *
+                  ((100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER) / 100),
+              buy: maxBuyOrder,
+              buy_total: buyOrders.length,
+            });
+          }
+        }
+      }
+    }
+    setFilteredItems(filteredOrders);
+    setData("anomalies_expire_" + station.value, refreshDate);
+    setInitialEndDate(refreshDate - Date.now());
+    setRawItems([]);
+  }
+
+  function finalProcess() {
     axios
       .all(
         filteredItems.map((item: any) =>
@@ -189,6 +253,7 @@ const WatchList = (props: Props) => {
                 setData("anomalies_" + station.value, final);
                 setWatchedItems(final);
                 setLoadingWatched(false);
+                setFilteredItems([]);
               })
             )
             .catch((error: any) => {
@@ -199,82 +264,6 @@ const WatchList = (props: Props) => {
       .catch((error: any) => {
         console.log("getMarketHistories::error", error);
       });
-  }, [filteredItems]);
-
-  const processData = useCallback(() => {
-    const groupedBy: any = groupBy(
-      filter(compact(rawItems), { location_id: stationID }),
-      "type_id"
-    );
-    const filteredOrders: any = [];
-    for (const [key, value] of Object.entries(groupedBy)) {
-      // @ts-ignore
-      const buyOrders = filter(value, { is_buy_order: true });
-      // @ts-ignore
-      const sellOrders: any = orderBy(
-        // @ts-ignore
-        filter(value, { is_buy_order: false }),
-        ["price"],
-        ["asc"]
-      );
-      if (buyOrders.length > 0 && sellOrders.length > 1) {
-        const minSellOrder: any = minBy(sellOrders, "price");
-        const maxBuyOrder: any = maxBy(buyOrders, "price");
-
-        if (
-          minSellOrder &&
-          maxBuyOrder &&
-          minSellOrder.price * minSellOrder.volume_remain >=
-            MINIMUM_TOTAL_SELL_AMOUNT
-        ) {
-          const pricePercentageDifferenceWithSecondOrder =
-            100 *
-            Math.abs(
-              (sellOrders[1].price - minSellOrder.price) /
-                ((sellOrders[1].price + minSellOrder.price) / 2)
-            );
-          if (
-            pricePercentageDifferenceWithSecondOrder >
-            GAP_BETWEEN_TWO_FIRST_SELLS_ORDERS
-          ) {
-            filteredOrders.push({
-              sell: minSellOrder,
-              sell_total: sellOrders.length,
-              second_sell: sellOrders[1],
-              difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
-              margin_between_two_first_orders:
-                (sellOrders[1].price - minSellOrder.price) *
-                minSellOrder.volume_remain,
-              strict_anomaly:
-                minSellOrder.price <
-                maxBuyOrder.price *
-                  ((100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER) / 100),
-              buy: maxBuyOrder,
-              buy_total: buyOrders.length,
-            });
-          }
-        }
-      }
-    }
-    setFilteredItems(filteredOrders);
-    const refreshDate: any = max(refreshTimeArray);
-    setData("anomalies_expire_" + station.value, refreshDate);
-    setInitialEndDate(refreshDate - Date.now());
-    setRefreshDate(refreshDate);
-  }, [rawItems, refreshTimeArray]);
-
-  function addToMyItems(e: any, item: any) {
-    e.preventDefault();
-    addToItems(item);
-    toast.success("Successfully added to items list", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
   }
 
   function reload(e: any) {
@@ -285,68 +274,101 @@ const WatchList = (props: Props) => {
     setRawItems([]);
     setFilteredItems([]);
     setWatchedItems([]);
-    getMarketOrders();
+    getMarketOrders(1, []);
   }
 
-  const onCountdownTick = useCallback(
-    (infos: any) => {
-      const percent = (100 * infos.total) / initialEndDate;
-      setPercentLeft(percent);
-    },
-    [initialEndDate]
+  function onCountdownTick(infos: any) {
+    const percent = (100 * infos.total) / initialEndDate;
+    setPercentLeft(percent);
+  }
+
+  const tableColumns = useMemo(
+    () => [
+      {
+        Header: "Item Name",
+        accessor: "infos.label",
+        Cell: (item: any) => (
+          <WatchListTableItem addToItems={addToItems} item={item} />
+        ),
+      },
+      {
+        Header: "Total",
+        accessor: "sell.volume_remain",
+        Cell: ({ value }: any) => {
+          return formatCurrency(value);
+        },
+      },
+      {
+        Header: "1st sell (2nd sell)",
+        accessor: "sell.price",
+        Cell: (item: any) => {
+          return (
+            <>
+              <span style={{ display: "block" }}>
+                {formatCurrency(item.value)} ISK{" "}
+              </span>
+              <small style={{ display: "block" }}>
+                ({formatCurrency(item.row.original.second_sell.price)} ISK)
+              </small>
+            </>
+          );
+        },
+      },
+      {
+        Header: "1st buy",
+        accessor: "buy.price",
+        Cell: ({ value }: any) => {
+          return formatCurrency(value) + " ISK";
+        },
+      },
+      {
+        Header: "Margin",
+        accessor: "difference_with_second_sell_order",
+        Cell: ({ value }: any) => {
+          return formatCurrency(value) + "%";
+        },
+      },
+      {
+        Header: "Margin ISK",
+        accessor: "margin_between_two_first_orders",
+        Cell: ({ value }: any) => {
+          return formatCurrency(value) + " ISK";
+        },
+      },
+      {
+        Header: "Price 7d",
+        accessor: "median.price_average",
+        Cell: ({ value }: any) => {
+          return formatCurrency(value) + " ISK";
+        },
+      },
+      {
+        Header: "Order 7d",
+        accessor: "median.order_count_average",
+        Cell: ({ value }: any) => {
+          return formatCurrency(value);
+        },
+      },
+      {
+        Header: "Vol. 7d",
+        accessor: "median.volume_average",
+        Cell: ({ value }: any) => {
+          return formatCurrency(value);
+        },
+      },
+      {
+        Header: "strict",
+        accessor: (row: any) => {
+          return "strict_" + row.strict_anomaly;
+        },
+        Cell: ({ value }: any) => {
+          return "";
+        },
+        width: 0,
+      },
+    ],
+    []
   );
-
-  function changeStrictMode(e: any) {
-    setStrictMode(!strictMode);
-  }
-
-  function copySuccess() {
-    toast.success("Item name copied to clipboard", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-  }
-
-  function sortByDifference(e: any) {
-    e.preventDefault();
-    setOrderByDifference((prev: any) =>
-      !prev || prev === "desc" ? "asc" : "desc"
-    );
-  }
-
-  function sortByMarginISK(e: any) {
-    e.preventDefault();
-    setOrderByMarginISK((prev: any) =>
-      !prev || prev === "desc" ? "asc" : "desc"
-    );
-  }
-
-  useEffect(() => {
-    if (orderByDifference) {
-      setOrderByMarginISK(null);
-      setWatchedItems((prev) =>
-        orderBy(
-          prev,
-          ["difference_with_second_sell_order"],
-          [orderByDifference]
-        )
-      );
-    }
-  }, [orderByDifference]);
-
-  useEffect(() => {
-    if (orderByMarginISK) {
-      setOrderByDifference(null);
-      setWatchedItems((prev) =>
-        orderBy(prev, ["margin_between_two_first_orders"], [orderByMarginISK])
-      );
-    }
-  }, [orderByMarginISK]);
 
   return (
     <WatchListStyled>
@@ -379,162 +401,14 @@ const WatchList = (props: Props) => {
             </CircularProgressbarWithChildren>
           </WatchListReload>
         ) : null}
-        <label htmlFor="strict_only">
-          <input
-            checked={strictMode}
-            type="checkbox"
-            name="strict_only"
-            id="strict_only"
-            onChange={changeStrictMode}
-          />
-          Show only wrong sell orders
-        </label>
       </WatchListHeaderStyled>
       {loadingWatched ? (
-        <div style={{ margin: "60px 0" }}>
+        <WatchListLoaderStyled>
           <Loader color={"#fff"} />
-        </div>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Item Name</th>
-              <th>Total</th>
-              <th>1st sell (2nd sell)</th>
-              <th>1st buy</th>
-              <th>
-                <a href="" onClick={sortByDifference}>
-                  Margin
-                </a>
-                <div className="arrow-wrapper">
-                  <span
-                    className={
-                      "arrow" +
-                      (orderByDifference && orderByDifference === "asc"
-                        ? " is-active"
-                        : "")
-                    }
-                  ></span>
-                  <span
-                    className={
-                      "arrow is-down" +
-                      (orderByDifference && orderByDifference === "desc"
-                        ? " is-active"
-                        : "")
-                    }
-                  ></span>
-                </div>
-              </th>
-              <th>
-                <a href="" onClick={sortByMarginISK}>
-                  Margin ISK
-                </a>
-                <div className="arrow-wrapper">
-                  <span
-                    className={
-                      "arrow" +
-                      (orderByMarginISK && orderByMarginISK === "asc"
-                        ? " is-active"
-                        : "")
-                    }
-                  ></span>
-                  <span
-                    className={
-                      "arrow is-down" +
-                      (orderByMarginISK && orderByMarginISK === "desc"
-                        ? " is-active"
-                        : "")
-                    }
-                  ></span>
-                </div>
-              </th>
-              <th>Price 7d</th>
-              <th>Order 7d</th>
-              <th>Vol 7d</th>
-            </tr>
-          </thead>
-          <tbody>
-            {watchedItems && watchedItems.length > 0 ? (
-              watchedItems
-                .filter((item) =>
-                  strictMode ? item.strict_anomaly === true : true
-                )
-                .map((item: any) => {
-                  return item && item.infos ? (
-                    <tr key={item.sell.type_id}>
-                      <td
-                        style={{
-                          verticalAlign: "middle",
-                          position: "relative",
-                          height: "24px",
-                          lineHeight: "24px",
-                        }}
-                      >
-                        {!includes(item.infos.label.toLowerCase(), "skin") ? (
-                          <img
-                            alt={item.sell.type_id}
-                            width="24"
-                            height="24"
-                            src={`https://images.evetech.net/types/${item.sell.type_id}/${item.infos.image_type}?size=64`}
-                            style={{
-                              marginRight: "5px",
-                              verticalAlign: "middle",
-                            }}
-                          />
-                        ) : null}
-
-                        <a href="" onClick={(e) => addToMyItems(e, item.infos)}>
-                          {item.infos.label}
-                        </a>
-                        <span className="copy">
-                          <CopyToClipboard
-                            text={item.infos.label}
-                            onCopy={copySuccess}
-                          >
-                            <img
-                              src="img/copy.svg"
-                              width="22"
-                              height="22"
-                              style={{
-                                marginLeft: "5px",
-                                verticalAlign: "middle",
-                              }}
-                            />
-                          </CopyToClipboard>
-                        </span>
-                      </td>
-                      <td>{formatCurrency(item.sell.volume_remain)} </td>
-                      <td>
-                        <span style={{ display: "block" }}>
-                          {formatCurrency(item.sell.price)} ISK{" "}
-                        </span>
-                        <small style={{ display: "block" }}>
-                          ({formatCurrency(item.second_sell.price)} ISK)
-                        </small>
-                      </td>
-                      <td>{formatCurrency(item.buy.price)} ISK</td>
-                      <td>
-                        {formatCurrency(item.difference_with_second_sell_order)}{" "}
-                        %
-                      </td>
-                      <td>
-                        {formatCurrency(item.margin_between_two_first_orders)}{" "}
-                        ISK
-                      </td>
-                      <td>{formatCurrency(item.median.price_average)} ISK</td>
-                      <td>{formatCurrency(item.median.order_count_average)}</td>
-                      <td>{formatCurrency(item.median.volume_average)}</td>
-                    </tr>
-                  ) : null;
-                })
-            ) : (
-              <tr>
-                <td colSpan={7}>No results</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+        </WatchListLoaderStyled>
+      ) : watchedItems && watchedItems.length > 0 ? (
+        <WatchListTable columns={tableColumns} data={watchedItems} />
+      ) : null}
     </WatchListStyled>
   );
 };

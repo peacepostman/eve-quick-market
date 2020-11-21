@@ -58,6 +58,10 @@ const WatchListStyled = styled.div`
         text-decoration: none;
       }
     }
+    thead tr th:last-child,
+    tbody tr td:last-child {
+      display: none;
+    }
     tr th,
     tr td {
       border: 1px solid #8d8d8d;
@@ -104,6 +108,12 @@ const WatchListStyled = styled.div`
   }
 `;
 
+const WatchListLoaderStyled = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
 const WatchListHeaderStyled = styled.header`
   padding: 20px 80px 20px 20px;
   background-color: rgba(15, 32, 39, 0.7);
@@ -117,7 +127,7 @@ const WatchListReload = styled.a<Props>`
   height: 60px;
   display: block;
   position: absolute;
-  top: 0;
+  top: 12px;
   right: 0;
   margin: 20px;
   font-size: 14px;
@@ -130,4 +140,9 @@ const WatchListReload = styled.a<Props>`
   }
 `;
 
-export { WatchListStyled, WatchListHeaderStyled, WatchListReload };
+export {
+  WatchListStyled,
+  WatchListLoaderStyled,
+  WatchListHeaderStyled,
+  WatchListReload,
+};

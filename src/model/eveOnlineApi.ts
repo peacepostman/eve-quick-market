@@ -14,24 +14,27 @@ export default class EveOnlineAPI {
     itemName: string,
     categorie: "inventory_type" | "station" | "region" | "solar_system"
   ) {
-    return axios.get(
-      `search/?categories=${categorie}&datasource=tranquility&language=en-us&strict=false&search=${itemName}`,
-      axiosOptions
-    );
+    return axios
+      .get(
+        `search/?categories=${categorie}&datasource=tranquility&language=en-us&strict=false&search=${itemName}`,
+        axiosOptions
+      )
+      .catch((err) => null);
   }
 
   static getStation(stationID: string) {
-    return axios.get(
-      `universe/stations/${stationID}/?datasource=tranquility`,
-      axiosOptions
-    );
+    return axios
+      .get(
+        `universe/stations/${stationID}/?datasource=tranquility`,
+        axiosOptions
+      )
+      .catch((err) => null);
   }
 
   static getItem(itemID: string) {
-    return axios.get(
-      `universe/types/${itemID}/?datasource=tranquility`,
-      axiosOptions
-    );
+    return axios
+      .get(`universe/types/${itemID}/?datasource=tranquility`, axiosOptions)
+      .catch((err) => null);
   }
 
   static getMarketOrder(
@@ -40,23 +43,29 @@ export default class EveOnlineAPI {
     orderType: string = "sell",
     page: string = "1"
   ) {
-    return axios.get(
-      `markets/${regionID}/orders/?datasource=tranquility&order_type=${orderType}&page=${page}&type_id=${typeID}`,
-      axiosOptions
-    );
+    return axios
+      .get(
+        `markets/${regionID}/orders/?datasource=tranquility&order_type=${orderType}&page=${page}&type_id=${typeID}`,
+        axiosOptions
+      )
+      .catch((err) => null);
   }
 
   static getMarketHistory(regionID: string, typeID: string) {
-    return axios.get(
-      `markets/${regionID}/history/?datasource=tranquility&type_id=${typeID}`,
-      axiosOptions
-    );
+    return axios
+      .get(
+        `markets/${regionID}/history/?datasource=tranquility&type_id=${typeID}`,
+        axiosOptions
+      )
+      .catch((err) => null);
   }
 
   static getRoute(fromStationID: string, toStationID: string) {
-    return axios.get(
-      `route/${fromStationID}/${toStationID}/?datasource=tranquility&flag=secure`,
-      axiosOptions
-    );
+    return axios
+      .get(
+        `route/${fromStationID}/${toStationID}/?datasource=tranquility&flag=secure`,
+        axiosOptions
+      )
+      .catch((err) => null);
   }
 }

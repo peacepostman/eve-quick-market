@@ -27,7 +27,7 @@ const Countdown = (props: Props) => {
           clearInterval(timer);
           setTimeout(() => {
             onComplete();
-          }, 100);
+          });
         }
       }, 1000);
       return () => clearInterval(timer);
@@ -47,4 +47,4 @@ const Countdown = (props: Props) => {
   );
 };
 
-export default Countdown;
+export default React.memo(Countdown);
