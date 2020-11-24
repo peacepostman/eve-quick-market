@@ -169,7 +169,7 @@ const WatchList = (props: Props) => {
                       ? playerSkill.accountingLevel
                       : 5)) /
                     100) -
-                sellOrders[1].price * minSellOrder.volume_remain,
+                minSellOrder.price * minSellOrder.volume_remain,
               strict_anomaly:
                 minSellOrder.price <
                 maxBuyOrder.price *
