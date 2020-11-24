@@ -4,7 +4,7 @@ const PlayerSkillButton = styled.button<{
   isOpen: boolean;
 }>`
   position: ${(props) => (props.isOpen ? "fixed" : "absolute")};
-  z-index: 21;
+  z-index: 9;
   top: 0;
   right: 0;
   margin: 20px;
@@ -37,7 +37,7 @@ const PlayerSkillSidebar = styled.div<{
   top 0;
   right: 0;
   bottom: 0;
-  z-index: 20;
+  z-index: 8;
   padding: 80px 20px 20px;
   transition: transform .2S ease-in;
   transform: ${(props) =>
