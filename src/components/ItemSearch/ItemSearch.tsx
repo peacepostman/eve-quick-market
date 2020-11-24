@@ -8,6 +8,8 @@ import EveOnlineAPI from "./../../model/eveOnlineApi";
 import getSelectStyle from "./../../helpers/getSelectStyle";
 import toastError from "./../../helpers/toastError";
 
+import ItemSearchStyled from "./ItemSearch.styled";
+
 const { Option } = components;
 const ItemSearchOption = (props: any) => (
   <Option {...props}>
@@ -97,14 +99,7 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
   }
 
   return (
-    <div
-      style={{
-        width: "30%",
-        marginLeft: "50%",
-        marginBottom: "60px",
-        transform: "translateX(-50%)",
-      }}
-    >
+    <ItemSearchStyled>
       <AsyncSelect
         styles={getSelectStyle}
         components={{ Option: ItemSearchOption }}
@@ -116,7 +111,7 @@ const ItemSearch = (props: { onChangeCallback(data: any): void }) => {
         loadOptions={debouncedLoadOptions}
         defaultOptions
       />
-    </div>
+    </ItemSearchStyled>
   );
 };
 

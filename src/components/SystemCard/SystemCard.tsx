@@ -166,7 +166,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
                       ),
                       map(
                         stats[system.value][currentItem.value].history,
-                        "lowest"
+                        "average"
                       )
                     )}
                     options={setChartOptions(tooltipCustom)}
@@ -183,12 +183,12 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
                             ].date
                           }
                         </strong>
-                        Lowest price:{" "}
+                        Average price:{" "}
                         <strong>
                           {formatCurrency(
                             stats[system.value][currentItem.value].history[
                               tooltipData.index
-                            ].lowest
+                            ].average
                           )}
                         </strong>
                       </div>
@@ -228,7 +228,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
                     0 ? (
                       stats[system.value][currentItem.value].orders.map(
                         (order: any, index: number) => {
-                          return index < 3 ? (
+                          return index < 2 ? (
                             <tr key={index}>
                               <td>{formatCurrency(order.volume_remain)}</td>
                               <td>{formatCurrency(order.price)} ISK</td>

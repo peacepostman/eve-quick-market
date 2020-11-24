@@ -37,10 +37,11 @@ import {
 interface Props {
   station: any;
   addToItems(item: any): void;
+  playerSkill: any;
 }
 
 const WatchList = (props: Props) => {
-  const { station, addToItems } = props;
+  const { station, addToItems, playerSkill } = props;
   const [loadingWatched, setLoadingWatched] = useState<boolean>(false);
   const [isFetched, setIsFetched] = useState<boolean>(false);
   const [canRefresh, setCanRefresh] = useState<boolean>(false);
@@ -161,8 +162,14 @@ const WatchList = (props: Props) => {
               second_sell: sellOrders[1],
               difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
               margin_between_two_first_orders:
-                (sellOrders[1].price - minSellOrder.price) *
-                minSellOrder.volume_remain,
+                sellOrders[1].price *
+                  minSellOrder.volume_remain *
+                  ((100 +
+                    (playerSkill.accountingLevel
+                      ? playerSkill.accountingLevel
+                      : 5)) /
+                    100) -
+                sellOrders[1].price * minSellOrder.volume_remain,
               strict_anomaly:
                 minSellOrder.price <
                 maxBuyOrder.price *
@@ -343,15 +350,15 @@ const WatchList = (props: Props) => {
         },
       },
       {
-        Header: "Order 7d",
-        accessor: "median.order_count_average",
+        Header: "Vol. 7d",
+        accessor: "median.volume_average",
         Cell: ({ value }: any) => {
           return formatCurrency(value);
         },
       },
       {
-        Header: "Vol. 7d",
-        accessor: "median.volume_average",
+        Header: "Order 7d",
+        accessor: "median.order_count_average",
         Cell: ({ value }: any) => {
           return formatCurrency(value);
         },

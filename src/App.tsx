@@ -27,6 +27,7 @@ import ItemCardWrapper from "./components/ItemCardWrapper";
 import ItemSearch from "./components/ItemSearch";
 import Calculator from "./components/Calculator";
 import WatchList from "./components/WatchList";
+import PlayerSkill from "./components/PlayerSkill";
 
 import getData from "./helpers/getData";
 import setData from "./helpers/setData";
@@ -48,6 +49,7 @@ const App: React.FC = () => {
   const [jumps, setJumps] = useState(0);
   const [showHint, setShowHint] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [playerSkill, setPlayerSkill] = useState(getData("skills", true));
   const systemsRefs = useRef<any>([]);
   Modal.setAppElement("#root");
 
@@ -253,6 +255,11 @@ const App: React.FC = () => {
     }
   }
 
+  function savePlayerSkill(data: any) {
+    setData("skills", data, true);
+    setPlayerSkill(data);
+  }
+
   return (
     <MainWrapper>
       <ItemWrapper>
@@ -312,6 +319,7 @@ const App: React.FC = () => {
         systemsData={systemsData}
         currentItem={currentItem}
         onCallback={onCallback}
+        playerSkill={playerSkill}
       />
       <ToastContainer
         position="top-right"
@@ -335,8 +343,13 @@ const App: React.FC = () => {
         <a href="" className="modal-close" onClick={toggleModal}>
           &times;
         </a>
-        <WatchList station={currentSystem} addToItems={addItem} />
+        <WatchList
+          station={currentSystem}
+          addToItems={addItem}
+          playerSkill={playerSkill}
+        />
       </Modal>
+      <PlayerSkill setPlayerSkill={savePlayerSkill} playerSkill={playerSkill} />
     </MainWrapper>
   );
 };
