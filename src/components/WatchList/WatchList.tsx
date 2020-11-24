@@ -162,14 +162,16 @@ const WatchList = (props: Props) => {
               second_sell: sellOrders[1],
               difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
               margin_between_two_first_orders:
-                sellOrders[1].price *
+                sellOrders[1].price * minSellOrder.volume_remain -
+                minSellOrder.price * minSellOrder.volume_remain -
+                (sellOrders[1].price *
                   minSellOrder.volume_remain *
                   ((100 +
                     (playerSkill.accountingLevel
                       ? playerSkill.accountingLevel
                       : 5)) /
                     100) -
-                minSellOrder.price * minSellOrder.volume_remain,
+                  sellOrders[1].price * minSellOrder.volume_remain),
               strict_anomaly:
                 minSellOrder.price <
                 maxBuyOrder.price *
