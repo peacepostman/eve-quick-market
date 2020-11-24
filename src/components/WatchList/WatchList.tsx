@@ -27,6 +27,10 @@ import WatchListTableItem from "./WatchListTableItem";
 import formatCurrency from "./../../helpers/formatCurrency";
 import getData from "./../../helpers/getData";
 import setData from "./../../helpers/setData";
+import averagePerType from "./../../helpers/averagePerType";
+
+import historyType from "./../../definitions/history";
+
 import {
   WatchListStyled,
   WatchListLoaderStyled,
@@ -158,6 +162,7 @@ const WatchList = (props: Props) => {
           ) {
             filteredOrders.push({
               sell: minSellOrder,
+              sell_data: sellOrders,
               sell_total: sellOrders.length,
               second_sell: sellOrders[1],
               difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
@@ -177,6 +182,7 @@ const WatchList = (props: Props) => {
                 maxBuyOrder.price *
                   ((100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER) / 100),
               buy: maxBuyOrder,
+              buy_data: buyOrders,
               buy_total: buyOrders.length,
             });
           }
@@ -195,15 +201,19 @@ const WatchList = (props: Props) => {
         filteredItems.map((item: any) =>
           EveOnlineAPI.getMarketHistory(regionID, item.sell.type_id.toString())
             .then((history: any) => {
-              const historyDataCompact = take(reverse(history.data), 7);
+              const historyDataCompact: historyType[] = take(
+                reverse(history.data),
+                7
+              );
               return {
                 median: {
-                  price_average: meanBy(historyDataCompact, "average"),
-                  order_count_average: meanBy(
+                  data: historyDataCompact,
+                  price_average: averagePerType(historyDataCompact, "average"),
+                  order_count_average: averagePerType(
                     historyDataCompact,
                     "order_count"
                   ),
-                  volume_average: meanBy(historyDataCompact, "volume"),
+                  volume_average: averagePerType(historyDataCompact, "volume"),
                 },
                 ...item,
               };
@@ -277,13 +287,15 @@ const WatchList = (props: Props) => {
 
   function reload(e: any) {
     e.preventDefault();
-
+    setIsFetched(false);
     setCanRefresh(false);
     setLoadingWatched(true);
     setRawItems([]);
     setFilteredItems([]);
     setWatchedItems([]);
-    getMarketOrders(1, []);
+    setTimeout(() => {
+      getMarketOrders(1, []);
+    }, 100);
   }
 
   function onCountdownTick(infos: any) {

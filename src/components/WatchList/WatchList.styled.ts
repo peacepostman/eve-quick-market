@@ -70,6 +70,10 @@ const WatchListStyled = styled.div`
     tr td {
       border-top: none;
       border-bottom: none;
+      &:first-child {
+        position: relative;
+        padding-right: 60px;
+      }
     }
     tr th:last-child,
     tr td:last-child {
@@ -83,7 +87,7 @@ const WatchListStyled = styled.div`
 
     tbody tr:hover {
       background-color: rgba(255, 255, 255, 0.2);
-      td .copy {
+      td .row-actions {
         opacity: 1;
       }
     }
@@ -96,11 +100,13 @@ const WatchListStyled = styled.div`
       }
     }
 
-    tr td .copy {
+    tr td .row-actions {
       opacity: 0;
       cursor: pointer;
-      margin-left: 10px;
-      float: right;
+      position: absolute;
+      right: 0;
+      top: 0;
+      margin: 13px 12px 13px 0;
       img {
         vertical-align: middle;
       }

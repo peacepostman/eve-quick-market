@@ -42,6 +42,11 @@ const WatchListTableItem = (props: Props) => {
     addToMyItems(e, item.row.original.infos);
   }
 
+  function openDetails(e: any) {
+    e.preventDefault();
+    console.log("data", item.row.original);
+  }
+
   return (
     <>
       {!includes(item.value.toLowerCase(), "skin") ? (
@@ -51,7 +56,7 @@ const WatchListTableItem = (props: Props) => {
           height="24"
           src={`https://images.evetech.net/types/${item.row.original.sell.type_id}/${item.row.original.infos.image_type}?size=64`}
           style={{
-            marginRight: "5px",
+            marginRight: "8px",
             verticalAlign: "middle",
           }}
         />
@@ -60,10 +65,20 @@ const WatchListTableItem = (props: Props) => {
       <a href="" onClick={addItem}>
         {item.value}
       </a>
-      <span className="copy">
+      <span className="row-actions">
         <CopyToClipboard text={item.value} onCopy={copySuccess}>
           <img
             src="img/copy.svg"
+            width="22"
+            height="22"
+            style={{
+              verticalAlign: "middle",
+            }}
+          />
+        </CopyToClipboard>
+        <a href="" onClick={openDetails}>
+          <img
+            src="img/zoom.svg"
             width="22"
             height="22"
             style={{
@@ -71,7 +86,7 @@ const WatchListTableItem = (props: Props) => {
               verticalAlign: "middle",
             }}
           />
-        </CopyToClipboard>
+        </a>
       </span>
     </>
   );
