@@ -264,13 +264,17 @@ const WatchList = (props: Props) => {
             .then(
               axios.spread((...infos) => {
                 const final = finalArray.map((item: any, index: number) => {
-                  return {
-                    ...item,
-                    infos: find(infos, { type_id: item.sell.type_id }),
-                  };
+                  const itemInfo = find(infos, { type_id: item.sell.type_id });
+                  if (infos) {
+                    return {
+                      ...item,
+                      infos: itemInfo,
+                    };
+                  }
                 });
-                setData("anomalies_" + station.value, final);
-                setWatchedItems(final);
+                const finalCleaned = compact(final);
+                setData("anomalies_" + station.value, finalCleaned);
+                setWatchedItems(finalCleaned);
                 setLoadingWatched(false);
                 setFilteredItems([]);
               })
