@@ -1,28 +1,30 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 interface Props {
   disabled: boolean;
 }
 
 const WatchListStyled = styled.div`
+  width: 100%;
   h1 {
     font-size: 24px;
   }
   .arrow-wrapper {
-    margin-left: 5px;
-    display: inline-block;
+    position: absolute;
+    right: 3px;
+    bottom: 7px;
   }
 
   .arrow:after {
     border: solid transparent;
-    content: "";
+    content: '';
     height: 0;
     width: 0;
     position: absolute;
     pointer-events: none;
     border-color: transparent;
-    border-bottom-color: rgba(221, 221, 221, 0.4);
-    border-width: 6px;
+    border-bottom-color: rgba(221, 221, 221, 0.3);
+    border-width: 4px;
   }
 
   .arrow {
@@ -34,9 +36,9 @@ const WatchListStyled = styled.div`
       border-bottom-color: #ddd;
     }
     &.is-down:after {
-      margin-top: 5px;
+      margin-top: 2px;
       border-bottom-color: transparent;
-      border-top-color: rgba(221, 221, 221, 0.4);
+      border-top-color: rgba(221, 221, 221, 0.3);
     }
     &.is-active.is-down:after {
       border-top-color: #ddd;
@@ -48,13 +50,17 @@ const WatchListStyled = styled.div`
     border-spacing: 0;
     border-collapse: collapse;
     position: relative;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    background-color: #171f23;
     tr th {
       text-align: left;
       position: sticky;
-      top: -1px;
-      background-color: rgba(15, 32, 39, 1);
+      background-color: #171f23;
+      z-index: 1;
+      top: 86px;
       a {
-        color: #ddd;
+        color: rgba(255, 255, 255, 0.8);
         text-decoration: none;
       }
     }
@@ -64,7 +70,7 @@ const WatchListStyled = styled.div`
     }
     tr th,
     tr td {
-      border: 1px solid #8d8d8d;
+      border: 1px solid #454c4f;
       padding: 8px;
     }
     tr td {
@@ -76,7 +82,9 @@ const WatchListStyled = styled.div`
       }
     }
     tr th:last-child,
-    tr td:last-child {
+    tr td:last-child,
+    tr th:nth-last-child(2),
+    tr td:nth-last-child(2) {
       border-right: none;
     }
 
@@ -86,7 +94,7 @@ const WatchListStyled = styled.div`
     }
 
     tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: rgba(255, 255, 255, 0.15);
       td .row-actions {
         opacity: 1;
       }
@@ -121,34 +129,38 @@ const WatchListLoaderStyled = styled.div`
 `;
 
 const WatchListHeaderStyled = styled.header`
-  padding: 20px 80px 20px 20px;
-  background-color: rgba(15, 32, 39, 0.7);
+  padding: 10px 80px 10px 10px;
+  background-color: #171f23;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  h1 {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 20px;
+    font-weight: normal;
+    margin: 0 0 10px;
+  }
 `;
 
 const WatchListReload = styled.a<Props>`
   padding: 0;
   border: none;
   outline: none;
-  width: 60px;
-  height: 60px;
+  width: 36px;
+  height: 36px;
   display: block;
   position: absolute;
-  top: 12px;
+  top: 0;
   right: 0;
   margin: 20px;
-  font-size: 14px;
-  color: #fbb438;
+  font-size: 10px;
+  color: #b3bbc0;
   background-color: transparent;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
 
   .countdown {
-    margin-top: -10px;
+    margin-top: -6px;
   }
 `;
 
-export {
-  WatchListStyled,
-  WatchListLoaderStyled,
-  WatchListHeaderStyled,
-  WatchListReload,
-};
+export { WatchListStyled, WatchListLoaderStyled, WatchListHeaderStyled, WatchListReload };

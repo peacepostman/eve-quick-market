@@ -1,13 +1,10 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const MainWrapperStyled = styled.div`
-  font-family: "Roboto Condensed", sans-serif;
+  font-family: 'Roboto Condensed', sans-serif;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   min-height: 100vh;
-  padding: 60px 0;
+  padding: 0 0 0 50px;
   color: #333;
   background: #0f2027;
   background: -webkit-linear-gradient(to right, #0f2027, #203a43, #2c5364);
@@ -29,6 +26,11 @@ const MainWrapperStyled = styled.div`
 
   .Toastify__toast-container--top-right {
     top: 1em;
+    right: 1em;
+  }
+
+  .Toastify__toast-container--bottom-right {
+    bottom: 1em;
     right: 1em;
   }
 
@@ -55,8 +57,7 @@ const MainWrapperStyled = styled.div`
     box-sizing: border-box;
     margin-bottom: 1rem;
     padding: 8px;
-    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1),
-      0 2px 15px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1), 0 2px 15px 0 rgba(0, 0, 0, 0.05);
     display: -ms-flexbox;
     display: flex;
     -ms-flex-pack: justify;
@@ -159,15 +160,7 @@ const MainWrapperStyled = styled.div`
     transform-origin: right;
   }
   .Toastify__progress-bar--default {
-    background: linear-gradient(
-      to right,
-      #4cd964,
-      #5ac8fa,
-      #007aff,
-      #34aadc,
-      #5856d6,
-      #ff2d55
-    );
+    background: linear-gradient(to right, #4cd964, #5ac8fa, #007aff, #34aadc, #5856d6, #ff2d55);
   }
   .Toastify__progress-bar--dark {
     background: rgba(255, 255, 255, 0.6);
