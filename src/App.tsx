@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, Slide } from 'react-toastify';
 import Modal from 'react-modal';
-import EveOnlineAPI from './model/eveOnlineApi';
 
 import MainWrapper from './components/MainWrapper';
 import WatchList from './components/WatchList';
@@ -60,8 +59,8 @@ const App: React.FC = () => {
       <Nav>
         <Tabs>
           <TabItem isActive={currentTab === 0} onClick={() => changeTab(0)}>
-            <img src="/img/market.png" className="main" />
-            <img src="/img/market.png" className="glow" />
+            <img src="/img/market.png" alt="Anomalies" className="main" />
+            <img src="/img/market.png" alt="Anomalies" className="glow" />
           </TabItem>
           {/* <TabItem isActive={currentTab === 1} onClick={() => changeTab(1)}>
             <img src="/img/wallet.png" className="main" />

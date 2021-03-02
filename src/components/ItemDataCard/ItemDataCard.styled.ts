@@ -103,6 +103,30 @@ const ItemCardContent = styled.div`
   background-color: rgb(25, 44, 52);
   min-height: 30vh;
 
+  /* Turn on custom 8px wide scrollbar */
+  &:not(.is-mac)::-webkit-scrollbar {
+    width: 8px; /* 1px wider than Lion. */
+    /* This is more usable for users trying to click it. */
+    background-color: rgba(0, 0, 0, 0);
+    -webkit-border-radius: 100px;
+  }
+  /* hover effect for both scrollbar area, and scrollbar 'thumb' */
+  &:not(.is-mac)::-webkit-scrollbar:hover {
+    background-color: rgba(0, 0, 0, 0.09);
+  }
+
+  /* The scrollbar 'thumb' ...that marque oval shape in a scrollbar */
+  &:not(.is-mac)::-webkit-scrollbar-thumb:vertical {
+    /* This is the EXACT color of Mac OS scrollbars. 
+     Yes, I pulled out digital color meter */
+    background: rgba(0, 0, 0, 0.5);
+    -webkit-border-radius: 100px;
+  }
+  &:not(.is-mac)::-webkit-scrollbar-thumb:vertical:active {
+    background: rgba(0, 0, 0, 0.61); /* Some darker color when you click it */
+    -webkit-border-radius: 100px;
+  }
+
   @media only screen and (min-width: 767px) {
     &:first-child {
       margin-right: 5px;
@@ -120,15 +144,15 @@ const ItemCardContentInner = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  overflow-x: hidden;
+  padding: 20px;
 
   h2 {
-    margin: 10px;
+    margin: 0;
   }
 
   table {
-    width: calc(100%);
-    margin: 20px 0;
+    width: calc(100% + 40px);
+    margin: 20px -20px;
     border-spacing: 0;
     border-collapse: collapse;
     tr th {

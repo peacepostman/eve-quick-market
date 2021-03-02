@@ -20,7 +20,7 @@ export default function averagePerType(data: historyType[], key: keyof historyTy
       }
     }
     if (arrayOfValues.length < arrayExpectedLength) {
-      for (var i = 0; i < arrayExpectedLength - arrayOfValues.length; i++) {
+      for (var ii = 0; ii < arrayExpectedLength - arrayOfValues.length; ii++) {
         arrayOfValues.push(0);
       }
     }

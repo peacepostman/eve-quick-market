@@ -118,6 +118,16 @@ const WatchListStyled = styled.div`
       img {
         vertical-align: middle;
       }
+      button {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        &:focus {
+          outline: none;
+        }
+      }
     }
   }
 `;

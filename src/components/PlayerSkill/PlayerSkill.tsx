@@ -69,9 +69,7 @@ const PlayerSkill = (props: Props) => {
       setIsOpen(false);
       return;
     }
-
-    console.log({ mac: window.navigator.platform.match('Mac'), metaKey, ctrlKey, keyCode });
-    if ((window.navigator.platform.match('Mac') ? metaKey : ctrlKey) && keyCode == 83) {
+    if ((window.navigator.platform.match('Mac') ? metaKey : ctrlKey) && keyCode === 83) {
       e.preventDefault();
       handleSubmit(onSubmit);
       return;
@@ -117,8 +115,8 @@ const PlayerSkill = (props: Props) => {
   return (
     <>
       <TabItem isActive={isOpen} onClick={openPlayerSkill} style={{ marginTop: 'auto' }}>
-        <img src="img/augmentations.png" className="main" />
-        <img src="img/augmentations.png" className="glow" />
+        <img src="img/augmentations.png" alt="Options" className="main" />
+        <img src="img/augmentations.png" alt="Options" className="glow" />
       </TabItem>
       <PlayerSkillSidebar isOpen={isOpen} ref={sidebarRef}>
         {formValues && !isEmpty(formValues) ? (
@@ -167,7 +165,7 @@ const PlayerSkill = (props: Props) => {
               />
               <PlayerSkillFormHelper>
                 More information about{' '}
-                <a href="https://support.eveonline.com/hc/en-us/articles/203218962-Broker-Fee-and-Sales-Tax" target="_blank">
+                <a href="https://support.eveonline.com/hc/en-us/articles/203218962-Broker-Fee-and-Sales-Tax" target="_blank" rel="noreferrer">
                   Broker fee
                 </a>{' '}
               </PlayerSkillFormHelper>

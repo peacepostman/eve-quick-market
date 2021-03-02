@@ -25,8 +25,6 @@ const WatchListTableFilter = ({
   setCanRefresh,
   playerSkill,
 }: any) => {
-  const count = preGlobalFilteredRows.length;
-  const [value, setValue] = useState(globalFilter);
   const [percentLeft, setPercentLeft] = useState(100);
   const [storedEndDate, setStoredEndDate] = useState<any>(null);
   const onChange = useAsyncDebounce((value) => {
@@ -107,7 +105,6 @@ const WatchListTableFilter = ({
         name="strict_only"
         variant="sm"
         onChange={(e: any) => {
-          setValue(e.target.checked);
           onChange(e.target.checked);
         }}
         defaultIsChecked={false}
@@ -115,20 +112,6 @@ const WatchListTableFilter = ({
       >
         <div className="text-sm">Show only true market anomalies</div>
       </Switch>
-      {/* 
-      <label htmlFor="strict_only">
-        <input
-          onChange={(e) => {
-            setValue(e.target.checked);
-            onChange(e.target.checked);
-          }}
-          type="checkbox"
-          checked={value ? value : false}
-          id="strict_only"
-          name="strict_only"
-        />
-        Show only true market anomalies
-      </label> */}
     </WatchListHeaderStyled>
   );
 };

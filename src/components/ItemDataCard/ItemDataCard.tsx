@@ -1,10 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
-import SimpleBar from 'simplebar-react';
-import 'simplebar/dist/simplebar.min.css';
 
 import map from 'lodash/map';
-import orderBy from 'lodash/orderBy';
 import includes from 'lodash/includes';
 import {
   ItemCardStyled,
@@ -31,6 +28,7 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   const [tooltipData, setTooltipData] = useState<any>({});
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const chartRef = useRef<any>(null);
+  const isMac = navigator.platform.indexOf('Mac') > -1;
 
   useEffect(() => {
     function hideTooltip() {
@@ -123,87 +121,83 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
         <small>Price evolution on the last 14 active days</small>
       </ItemCardStatWrapper>
       <ItemCardContentWrapper>
-        <ItemCardContent>
+        <ItemCardContent className={isMac ? 'is-mac' : ''}>
           <ItemCardContentInner>
-            <SimpleBar>
-              <h2>Sell orders</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentItem.sell_data.length > 0 ? (
-                    currentItem.sell_data.map((order: any, index: number) => {
-                      return (
-                        <tr key={index}>
-                          <td>{formatCurrency(order.volume_remain)}</td>
-                          <td>{formatCurrency(order.price)} ISK</td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <>
-                      <tr>
-                        <td colSpan={2}>&nbsp;</td>
+            <h2>Sell orders</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentItem.sell_data.length > 0 ? (
+                  currentItem.sell_data.map((order: any, index: number) => {
+                    return (
+                      <tr key={index}>
+                        <td>{formatCurrency(order.volume_remain)}</td>
+                        <td>{formatCurrency(order.price)} ISK</td>
                       </tr>
-                      <tr>
-                        <td colSpan={2} style={{ textAlign: 'center' }}>
-                          No sell orders
-                        </td>
-                      </tr>
-                      <tr>
-                        <td colSpan={2}>&nbsp;</td>
-                      </tr>
-                    </>
-                  )}
-                </tbody>
-              </table>
-            </SimpleBar>
+                    );
+                  })
+                ) : (
+                  <>
+                    <tr>
+                      <td colSpan={2}>&nbsp;</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2} style={{ textAlign: 'center' }}>
+                        No sell orders
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2}>&nbsp;</td>
+                    </tr>
+                  </>
+                )}
+              </tbody>
+            </table>
           </ItemCardContentInner>
         </ItemCardContent>
 
-        <ItemCardContent>
+        <ItemCardContent className={isMac ? 'is-mac' : ''}>
           <ItemCardContentInner>
-            <SimpleBar>
-              <h2>Buy orders</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentItem.buy_data.length > 0 ? (
-                    currentItem.buy_data.map((order: any, index: number) => {
-                      return (
-                        <tr key={index}>
-                          <td>{formatCurrency(order.volume_remain)}</td>
-                          <td>{formatCurrency(order.price)} ISK</td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <>
-                      <tr>
-                        <td colSpan={2}>&nbsp;</td>
+            <h2>Buy orders</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Quantity</th>
+                  <th>Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentItem.buy_data.length > 0 ? (
+                  currentItem.buy_data.map((order: any, index: number) => {
+                    return (
+                      <tr key={index}>
+                        <td>{formatCurrency(order.volume_remain)}</td>
+                        <td>{formatCurrency(order.price)} ISK</td>
                       </tr>
-                      <tr>
-                        <td colSpan={2} style={{ textAlign: 'center' }}>
-                          No buy orders
-                        </td>
-                      </tr>
-                      <tr>
-                        <td colSpan={2}>&nbsp;</td>
-                      </tr>
-                    </>
-                  )}
-                </tbody>
-              </table>
-            </SimpleBar>
+                    );
+                  })
+                ) : (
+                  <>
+                    <tr>
+                      <td colSpan={2}>&nbsp;</td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2} style={{ textAlign: 'center' }}>
+                        No buy orders
+                      </td>
+                    </tr>
+                    <tr>
+                      <td colSpan={2}>&nbsp;</td>
+                    </tr>
+                  </>
+                )}
+              </tbody>
+            </table>
           </ItemCardContentInner>
         </ItemCardContent>
       </ItemCardContentWrapper>

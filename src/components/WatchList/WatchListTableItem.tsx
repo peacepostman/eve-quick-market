@@ -56,7 +56,7 @@ const WatchListTableItem = (props: Props) => {
             }}
           />
         </CopyToClipboard>
-        <a href="" onClick={openDetails}>
+        <button type="button" onClick={openDetails}>
           <img
             src="img/zoom.svg"
             alt="details"
@@ -67,7 +67,7 @@ const WatchListTableItem = (props: Props) => {
               verticalAlign: 'middle',
             }}
           />
-        </a>
+        </button>
       </span>
     </>
   );

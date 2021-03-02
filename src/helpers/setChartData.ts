@@ -1,4 +1,4 @@
-export default function (labels: any, data: any) {
+export default function setChartData(labels: any, data: any) {
   return {
     labels,
     datasets: [

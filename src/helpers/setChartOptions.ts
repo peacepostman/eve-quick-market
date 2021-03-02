@@ -6,7 +6,7 @@ function format(n: any, d: any) {
   return Math.round((n * d) / p(10, x)) / d + ' kMBT'[x / 3];
 }
 
-export default function (custom: any) {
+export default function setChartOptions(custom: any) {
   return {
     maintainAspectRatio: false,
     layout: {
