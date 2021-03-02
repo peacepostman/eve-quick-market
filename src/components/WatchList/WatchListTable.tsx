@@ -4,7 +4,19 @@ import WatchListTableFilter from './WatchListTableFilter';
 import Loader from './../Loader';
 import { WatchListLoaderStyled } from './WatchList.styled';
 
-const WatchListTable = ({ columns, data, station, reload, initialEndDate, refreshDate, canRefresh, setCanRefresh, loadingWatched }: any) => {
+const WatchListTable = ({
+  columns,
+  data,
+  system,
+  selectSystem,
+  reload,
+  initialEndDate,
+  refreshDate,
+  canRefresh,
+  setCanRefresh,
+  loadingWatched,
+  playerSkill,
+}: any) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state, preGlobalFilteredRows, setGlobalFilter }: any = useTable(
     {
       columns,
@@ -29,12 +41,14 @@ const WatchListTable = ({ columns, data, station, reload, initialEndDate, refres
         preGlobalFilteredRows={preGlobalFilteredRows}
         globalFilter={state.globalFilter}
         setGlobalFilter={setGlobalFilter}
-        station={station}
+        system={system}
+        selectSystem={selectSystem}
         reload={reload}
         initialEndDate={initialEndDate}
         refreshDate={refreshDate}
         canRefresh={canRefresh}
         setCanRefresh={setCanRefresh}
+        playerSkill={playerSkill}
       />
       {loadingWatched ? (
         <WatchListLoaderStyled>

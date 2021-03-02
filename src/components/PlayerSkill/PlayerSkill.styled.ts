@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const PlayerSkillSidebar = styled.div<{
+const PlayerSkillSidebar = styled.form<{
   isOpen: boolean;
 }>`
   position: fixed;
@@ -60,6 +60,10 @@ const PlayerSkillFormHelper = styled.small`
   opacity: 0.8;
   font-size: 12px;
   margin-top: 5px;
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
 `;
 
 export { PlayerSkillSidebar, PlayerSkillFormControl, PlayerSkillFormLabel, PlayerSkillFormHelper, PlayerSkillFormSend };

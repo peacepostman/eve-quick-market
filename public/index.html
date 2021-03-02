@@ -3,16 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
+    <meta name="description" content="Web site created using create-react-app" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -22,48 +16,93 @@
     <style>
       body {
         background: #0f2027;
-        font-family: "Roboto Condensed", sans-serif;
+        font-family: 'Roboto Condensed', sans-serif;
         margin: 0;
         padding: 0;
       }
+
       .ReactModal__Overlay {
         position: fixed;
         top: 0px;
         left: 0px;
         right: 0px;
         bottom: 0px;
-        z-index: 10;
-        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        background-color: rgba(0, 0, 0, 0.6);
       }
       .ReactModal__Content {
         overflow: hidden;
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(15, 32, 39, 1);
-        color: #ddd;
-        overflow: auto;
-        outline: none;
-        z-index: 11;
+        position: fixed;
+        inset: auto;
+        padding: 0;
+        z-index: 40;
+        text-align: left;
+        transition: all;
+        background: transparent;
+        max-height: 90vh;
+      }
+      /**
+      * React Modal
+      **/
+
+      .ReactModal__Body--open {
+        overflow-y: hidden;
       }
 
-      .modal-close {
-        position: absolute;
-        top: 0;
-        right: 0;
-        text-decoration: none;
-        padding: 4px 7px;
-        font-size: 14px;
-        line-height: 1;
-        color: rgba(221, 221, 221, 0.7);
-        cursor: pointer;
-        border: 1px solid rgba(221, 221, 221, 0.7);
+      .ReactModal__Overlay {
+        opacity: 0;
+        transition: opacity 0.2s ease-in;
       }
-      .modal-close:hover {
-        color: rgba(221, 221, 221, 1);
-        border: 1px solid rgba(221, 221, 221, 1);
+
+      .ReactModal__Overlay--after-open {
+        opacity: 1;
+      }
+
+      .ReactModal__Overlay--before-close {
+        opacity: 0;
+      }
+
+      .ReactModal__Content {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .ReactModal__Content--after-open {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .ReactModal__Content--before-close {
+        opacity: 0;
+      }
+
+      .ReactModal__Content.QuickMarket {
+        width: 100%;
+      }
+
+      @media only screen and (min-width: 767px) {
+        .ReactModal__Content.QuickMarket {
+          width: 80%;
+        }
+      }
+      @media only screen and (min-width: 980px) {
+        .ReactModal__Content.QuickMarket {
+          width: 60%;
+        }
+      }
+      @media only screen and (min-width: 1200px) {
+        .ReactModal__Content.QuickMarket {
+          width: 54%;
+        }
+      }
+      .ReactModal__Content.QuickMarket:focus {
+        outline: none;
       }
     </style>
     <!--

@@ -5,10 +5,11 @@ import includes from 'lodash/includes';
 
 interface Props {
   item: any;
+  showDetailsModal(item: any): void;
 }
 
 const WatchListTableItem = (props: Props) => {
-  const { item } = props;
+  const { item, showDetailsModal } = props;
 
   function copySuccess() {
     toast.success('Item name copied to clipboard', {
@@ -24,6 +25,7 @@ const WatchListTableItem = (props: Props) => {
   function openDetails(e: any) {
     e.preventDefault();
     console.log('data', item.row.original);
+    showDetailsModal(item.row.original);
   }
 
   return (
@@ -46,8 +48,9 @@ const WatchListTableItem = (props: Props) => {
         <CopyToClipboard text={item.value} onCopy={copySuccess}>
           <img
             src="img/copy.svg"
-            width="22"
-            height="22"
+            alt="Copy"
+            width="18"
+            height="18"
             style={{
               verticalAlign: 'middle',
             }}
@@ -56,8 +59,9 @@ const WatchListTableItem = (props: Props) => {
         <a href="" onClick={openDetails}>
           <img
             src="img/zoom.svg"
-            width="22"
-            height="22"
+            alt="details"
+            width="18"
+            height="18"
             style={{
               marginLeft: '5px',
               verticalAlign: 'middle',

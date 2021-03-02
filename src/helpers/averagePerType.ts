@@ -1,21 +1,18 @@
-import mean from "lodash/mean";
-import isWithinInterval from "date-fns/isWithinInterval";
-import subDays from "date-fns/subDays";
-import historyType from "./../definitions/history";
+import mean from 'lodash/mean';
+import isWithinInterval from 'date-fns/isWithinInterval';
+import subDays from 'date-fns/subDays';
+import historyType from './../definitions/history';
 
-export default function averagePerType(
-  data: historyType[],
-  key: keyof historyType
-) {
+export default function averagePerType(data: historyType[], key: keyof historyType) {
   let arrayOfValues: any = [];
   const arrayExpectedLength: number = data.length;
   if (data && data.length > 0) {
     for (var i = 0; i < data.length; i++) {
-      const [year, month, day]: any = data[i].date.split("-");
+      const [year, month, day]: any = data[i].date.split('-');
       const parsedDate = new Date(year, month - 1, day);
       if (
         isWithinInterval(parsedDate, {
-          start: subDays(new Date(), 8),
+          start: subDays(new Date(), 15),
           end: new Date(),
         })
       ) {

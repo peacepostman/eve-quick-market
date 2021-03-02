@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAsyncDebounce } from 'react-table';
 import Select from 'react-select';
 import { CircularProgressbarWithChildren, buildStyles } from 'react-circular-progressbar';
@@ -16,12 +16,14 @@ const WatchListTableFilter = ({
   preGlobalFilteredRows,
   globalFilter,
   setGlobalFilter,
-  station,
+  system,
+  selectSystem,
   reload,
   refreshDate,
   initialEndDate,
   canRefresh,
   setCanRefresh,
+  playerSkill,
 }: any) => {
   const count = preGlobalFilteredRows.length;
   const [value, setValue] = useState(globalFilter);
@@ -35,29 +37,30 @@ const WatchListTableFilter = ({
     }
     setGlobalFilter(value || undefined);
   }, 200);
+  const switchRef = useRef<any>(null);
 
   useEffect(() => {
     if (initialEndDate && initialEndDate !== storedEndDate) {
-      console.log('setStoredEndDate', initialEndDate);
       setStoredEndDate(initialEndDate);
     }
   }, [initialEndDate, storedEndDate]);
 
   const onCountdownTick = useCallback(
     (infos: any) => {
-      console.log('infos', infos, storedEndDate);
       const percent = (100 * infos.total) / storedEndDate;
       setPercentLeft(percent);
     },
     [storedEndDate]
   );
 
-  console.log({ percentLeft });
-
   const launchReload = (e: any) => {
     e.preventDefault();
     if (canRefresh) {
       reload();
+      onChange('');
+      if (switchRef && switchRef.current) {
+        switchRef.current.checked = false;
+      }
     }
   };
 
@@ -69,9 +72,9 @@ const WatchListTableFilter = ({
         <Select
           styles={getSelectStyle}
           options={options}
-          defaultValue={options[0]}
+          defaultValue={system ? system : playerSkill && playerSkill.favoriteStation ? playerSkill.favoriteStation : options[0]}
           placeholder="Select accounting level"
-          onChange={(val: any) => console.log('vali', val)}
+          onChange={selectSystem}
         />
       </div>
       <WatchListReload onClick={launchReload} disabled={!canRefresh}>
@@ -85,7 +88,7 @@ const WatchListTableFilter = ({
             })}
           >
             {canRefresh ? (
-              <img src="img/reload.svg" style={{ width: '14px', height: '14px', marginTop: '-7px' }} />
+              <img src="img/reload.svg" alt="reload" style={{ width: '14px', height: '14px', marginTop: '-7px' }} />
             ) : (
               <CountDown
                 expire={refreshDate}
@@ -108,6 +111,7 @@ const WatchListTableFilter = ({
           onChange(e.target.checked);
         }}
         defaultIsChecked={false}
+        ref={switchRef}
       >
         <div className="text-sm">Show only true market anomalies</div>
       </Switch>

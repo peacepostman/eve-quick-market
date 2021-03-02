@@ -29,31 +29,23 @@ import { WatchListStyled } from './WatchList.styled';
 
 interface Props {
   playerSkill: any;
+  showDetailsModal(item: any): void;
 }
 
 const dataSystems = getData('systems');
 
 const WatchList = (props: Props) => {
-  const { playerSkill } = props;
-  const [systemsData, setSystemsData] = useState(!isEmpty(dataSystems) ? dataSystems : getDefaultSystems());
-  const [currentStation, setCurrentStation] = useState();
+  const { playerSkill, showDetailsModal } = props;
+  const [systemsData, setSystemsData] = useState<any>(null);
+  const [currentSystem, setCurrentSystem] = useState<any>();
   const [loadingWatched, setLoadingWatched] = useState<boolean>(false);
   const [isFetched, setIsFetched] = useState<boolean>(false);
   const [canRefresh, setCanRefresh] = useState<boolean>(false);
   const [rawItems, setRawItems] = useState<any>([]);
   const [filteredItems, setFilteredItems] = useState<any[]>([]);
-
-  const station: any = find(systemsData, { value: 60003760 });
-
-  const hasStoredItems = getData('anomalies_' + station.value);
-  const [watchedItems, setWatchedItems] = useState<any[]>(hasStoredItems && hasStoredItems.length > 0 ? hasStoredItems : null);
-
-  const hasStoredDate = getData('anomalies_expire_' + station.value);
-  const [refreshDate, setRefreshDate] = useState<any>(hasStoredDate ? Number(hasStoredDate[0]) : null);
+  const [watchedItems, setWatchedItems] = useState<any[]>([]);
+  const [refreshDate, setRefreshDate] = useState<any>();
   const [initialEndDate, setInitialEndDate] = useState<any>();
-
-  const regionID = station.region_id;
-  const stationID = station.value;
 
   // sell order quantity * sell order price
   const MINIMUM_TOTAL_SELL_AMOUNT = 500000;
@@ -63,14 +55,37 @@ const WatchList = (props: Props) => {
   const GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER = 5;
 
   useEffect(() => {
-    if (!watchedItems || (watchedItems && refreshDate && refreshDate < Date.now())) {
-      console.log('getMarketOrders');
-      setCanRefresh(false);
-      getMarketOrders(1, []);
-    } else {
-      setInitialEndDate(refreshDate - Date.now());
-    }
+    setSystemsData(!isEmpty(dataSystems) ? dataSystems : getDefaultSystems());
   }, []);
+
+  useEffect(() => {
+    if (systemsData && !currentSystem) {
+      setCurrentSystem(find(systemsData, { value: playerSkill.favoriteStation ? playerSkill.favoriteStation.value : 60003760 }));
+    }
+  }, [systemsData]);
+
+  useEffect(() => {
+    if (currentSystem) {
+      const hasStoredItems = getData('anomalies_' + currentSystem.value);
+      if (hasStoredItems && hasStoredItems.length > 0) {
+        let hasStoredDate = getData('anomalies_expire_' + currentSystem.value);
+        if (hasStoredDate) {
+          hasStoredDate = Number(hasStoredDate[0]);
+          if (hasStoredDate < Date.now()) {
+            setCanRefresh(false);
+            getMarketOrders(1, []);
+          } else {
+            setWatchedItems(hasStoredItems);
+            setRefreshDate(hasStoredDate);
+            setInitialEndDate(hasStoredDate - Date.now());
+          }
+        }
+      } else {
+        setCanRefresh(false);
+        getMarketOrders(1, []);
+      }
+    }
+  }, [currentSystem]);
 
   useEffect(() => {
     if (isFetched) {
@@ -86,9 +101,13 @@ const WatchList = (props: Props) => {
     }
   }, [filteredItems]);
 
+  function selectSystem(val: any) {
+    setCurrentSystem(val);
+  }
+
   function getMarketOrders(page: number = 1, itemsArray: any[]) {
     setLoadingWatched(true);
-    EveOnlineAPI.getMarketOrder(regionID, '', 'all', page.toString())
+    EveOnlineAPI.getMarketOrder(currentSystem.region_id, '', 'all', page.toString())
       .then((orders: any) => {
         itemsArray = itemsArray.concat(orders.data);
         if (page === 1) {
@@ -109,11 +128,16 @@ const WatchList = (props: Props) => {
   }
 
   function processData() {
-    const groupedBy: any = groupBy(filter(compact(rawItems), { location_id: stationID }), 'type_id');
+    const groupedBy: any = groupBy(filter(compact(rawItems), { location_id: currentSystem.value }), 'type_id');
     const filteredOrders: any = [];
     for (const [key, value] of Object.entries(groupedBy)) {
       // @ts-ignore
-      const buyOrders = filter(value, { is_buy_order: true });
+      const buyOrders = orderBy(
+        // @ts-ignore
+        filter(value, { is_buy_order: true }),
+        ['price'],
+        ['desc']
+      );
       // @ts-ignore
       const sellOrders: any = orderBy(
         // @ts-ignore
@@ -139,6 +163,8 @@ const WatchList = (props: Props) => {
                 sellOrders[1].price * minSellOrder.volume_remain -
                 minSellOrder.price * minSellOrder.volume_remain -
                 (sellOrders[1].price * minSellOrder.volume_remain * ((100 + (playerSkill.accountingLevel ? playerSkill.accountingLevel : 5)) / 100) -
+                  sellOrders[1].price * minSellOrder.volume_remain) -
+                (sellOrders[1].price * minSellOrder.volume_remain * ((100 + (playerSkill.brokerFee ? playerSkill.brokerFee : 5)) / 100) -
                   sellOrders[1].price * minSellOrder.volume_remain),
               strict_anomaly: minSellOrder.price < maxBuyOrder.price * ((100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER) / 100),
               buy: maxBuyOrder,
@@ -149,8 +175,9 @@ const WatchList = (props: Props) => {
         }
       }
     }
+    setIsFetched(false);
     setFilteredItems(filteredOrders);
-    setData('anomalies_expire_' + station.value, refreshDate);
+    setData('anomalies_expire_' + currentSystem.value, refreshDate);
     setInitialEndDate(refreshDate - Date.now());
     setRawItems([]);
   }
@@ -159,9 +186,9 @@ const WatchList = (props: Props) => {
     axios
       .all(
         filteredItems.map((item: any) =>
-          EveOnlineAPI.getMarketHistory(regionID, item.sell.type_id.toString())
+          EveOnlineAPI.getMarketHistory(currentSystem.region_id, item.sell.type_id.toString())
             .then((history: any) => {
-              const historyDataCompact: historyType[] = take(reverse(history.data), 7);
+              const historyDataCompact: historyType[] = take(reverse(history.data), 14);
               return {
                 median: {
                   data: historyDataCompact,
@@ -192,16 +219,19 @@ const WatchList = (props: Props) => {
               finalArray.map((item: any) =>
                 EveOnlineAPI.getItem(item.sell.type_id.toString())
                   .then((itemInfo: any) => {
+                    const name = itemInfo.data.name ? itemInfo.data.name : null;
                     return {
                       type_id: itemInfo.data.type_id,
                       value: itemInfo.data.type_id,
-                      label: itemInfo.data.name,
-                      image_type: itemInfo.data.name.toLowerCase().includes('blueprint')
-                        ? 'bp'
-                        : !itemInfo.data.icon_id
-                        ? itemInfo.data.graphic_id
-                          ? 'render'
-                          : null
+                      label: name ? name : 'Error item name',
+                      image_type: name
+                        ? name.toLowerCase().includes('blueprint')
+                          ? 'bp'
+                          : !itemInfo.data.icon_id
+                          ? itemInfo.data.graphic_id
+                            ? 'render'
+                            : null
+                          : 'icon'
                         : 'icon',
                       volume: itemInfo.data.volume,
                       packaged_volume: itemInfo.data.packaged_volume,
@@ -225,7 +255,7 @@ const WatchList = (props: Props) => {
                   }
                 });
                 const finalCleaned = compact(final);
-                setData('anomalies_' + station.value, finalCleaned);
+                setData('anomalies_' + currentSystem.value, finalCleaned);
                 setWatchedItems(finalCleaned);
                 setLoadingWatched(false);
                 setFilteredItems([]);
@@ -260,10 +290,10 @@ const WatchList = (props: Props) => {
         accessor: 'infos.label',
         canSort: false,
         disableSortBy: true,
-        Cell: (item: any) => <WatchListTableItem item={item} />,
+        Cell: (item: any) => <WatchListTableItem item={item} showDetailsModal={showDetailsModal} />,
       },
       {
-        Header: 'Total',
+        Header: 'Quantity',
         accessor: 'sell.volume_remain',
         Cell: ({ value }: any) => {
           return formatCurrency(value);
@@ -342,13 +372,15 @@ const WatchList = (props: Props) => {
       <WatchListTable
         columns={tableColumns}
         data={watchedItems}
-        station={station}
+        system={currentSystem}
+        selectSystem={selectSystem}
         reload={reload}
         initialEndDate={initialEndDate}
         refreshDate={refreshDate}
         canRefresh={canRefresh}
         setCanRefresh={setCanRefresh}
         loadingWatched={loadingWatched}
+        playerSkill={playerSkill}
       />
     </WatchListStyled>
   );

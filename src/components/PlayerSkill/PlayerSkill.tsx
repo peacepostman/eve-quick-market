@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
+import { useForm, Controller } from 'react-hook-form';
+
 import find from 'lodash/find';
+import isEmpty from 'lodash/isEmpty';
 import { toast } from 'react-toastify';
 
 import getSelectStyle from './../../helpers/getSelectStyle';
+import getDefaultSystems from './../../helpers/getDefaultSystems';
 import { TabItem } from './../Tabs';
 import Input from './../Input';
 import { PlayerSkillSidebar, PlayerSkillFormControl, PlayerSkillFormLabel, PlayerSkillFormSend, PlayerSkillFormHelper } from './PlayerSkill.styled';
@@ -14,11 +18,12 @@ interface Props {
 }
 
 const PlayerSkill = (props: Props) => {
+  const { control, register, handleSubmit } = useForm();
   const { playerSkill, setPlayerSkill } = props;
-  const [accountingLevel, setAccountingLevel] = useState<any>();
-  const [minimumMargin, setMinimumMargin] = useState<any>();
+  const [formValues, setFormValues] = useState<any>();
+
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const options: any = [
+  const accountingLevelOptions: any = [
     { value: 5, label: 'Level 0 (5%)' },
     { value: 4.45, label: 'Level 1 (4.45%)' },
     { value: 3.9, label: 'Level 2 (3.9%)' },
@@ -26,42 +31,47 @@ const PlayerSkill = (props: Props) => {
     { value: 2.8, label: 'Level 4 (2.8%)' },
     { value: 2.25, label: 'Level 5 (2.25%)' },
   ];
+  const stationOptions: any = getDefaultSystems();
   const sidebarRef = useRef<any>(null);
 
   useEffect(() => {
     if (playerSkill) {
-      if (playerSkill.accountingLevel) {
-        setAccountingLevel(find(options, { value: playerSkill.accountingLevel }));
-      } else {
-        setAccountingLevel(options[0]);
-      }
-
-      if (playerSkill.minimumMargin) {
-        setMinimumMargin(playerSkill.minimumMargin);
-      } else {
-        setMinimumMargin(10);
-      }
+      setFormValues({
+        accountingLevel: playerSkill.accountingLevel
+          ? find(accountingLevelOptions, { value: playerSkill.accountingLevel })
+          : accountingLevelOptions[0],
+        brokerFee: playerSkill.brokerFee ? playerSkill.brokerFee : 5,
+        minimumMargin: playerSkill.minimumMargin ? playerSkill.minimumMargin : 10,
+        favoriteStation: playerSkill.favoriteStation ? playerSkill.favoriteStation : stationOptions[0],
+      });
     }
   }, [playerSkill]);
 
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener('keydown', closeListener);
+      document.addEventListener('keydown', keydownListener);
       document.addEventListener('mousedown', clickOutside);
       document.addEventListener('touchstart', clickOutside);
 
       return () => {
-        document.removeEventListener('keydown', closeListener);
+        document.removeEventListener('keydown', keydownListener);
         document.removeEventListener('mousedown', clickOutside);
         document.removeEventListener('touchstart', clickOutside);
       };
     }
   }, [isOpen]);
 
-  function closeListener(e: any) {
-    const { keyCode } = e;
+  function keydownListener(e: any) {
+    const { keyCode, metaKey, ctrlKey } = e;
     if (isOpen && keyCode === 27) {
       setIsOpen(false);
+      return;
+    }
+
+    console.log({ mac: window.navigator.platform.match('Mac'), metaKey, ctrlKey, keyCode });
+    if ((window.navigator.platform.match('Mac') ? metaKey : ctrlKey) && keyCode == 83) {
+      e.preventDefault();
+      handleSubmit(onSubmit);
       return;
     }
   }
@@ -80,10 +90,13 @@ const PlayerSkill = (props: Props) => {
     setIsOpen((prev: any) => !prev);
   }
 
-  function save() {
+  const onSubmit = (data: any) => {
+    const { accountingLevel, brokerFee, favoriteStation, minimumMargin } = data;
     setPlayerSkill({
-      accountingLevel: accountingLevel && accountingLevel.value ? accountingLevel.value : null,
-      minimumMargin: minimumMargin ? minimumMargin : 10,
+      accountingLevel: accountingLevel.value,
+      brokerFee: parseFloat(brokerFee),
+      minimumMargin: parseInt(minimumMargin),
+      favoriteStation,
     });
     toast.success('Configuration saved', {
       autoClose: 2000,
@@ -94,15 +107,7 @@ const PlayerSkill = (props: Props) => {
       progress: undefined,
     });
     setIsOpen((prev: any) => !prev);
-  }
-
-  function onChangeAccounting(val: any) {
-    setAccountingLevel(val);
-  }
-
-  function onChangeMinimumMargin(e: any) {
-    setMinimumMargin(e.target.value);
-  }
+  };
 
   return (
     <>
@@ -111,30 +116,75 @@ const PlayerSkill = (props: Props) => {
         <img src="img/augmentations.png" className="glow" />
       </TabItem>
       <PlayerSkillSidebar isOpen={isOpen} ref={sidebarRef}>
-        <PlayerSkillFormControl>
-          <PlayerSkillFormLabel>Skill Accounting level</PlayerSkillFormLabel>
-          <Select
-            styles={getSelectStyle}
-            options={options}
-            defaultValue={options[0]}
-            value={accountingLevel}
-            placeholder="Select accounting level"
-            onChange={onChangeAccounting}
-          />
-        </PlayerSkillFormControl>
+        {formValues && !isEmpty(formValues) ? (
+          <>
+            <PlayerSkillFormControl>
+              <PlayerSkillFormLabel>Favorite Station</PlayerSkillFormLabel>
 
-        <PlayerSkillFormControl>
-          <PlayerSkillFormLabel>Minimum margin (in percent)</PlayerSkillFormLabel>
-          <Input
-            value={minimumMargin}
-            type="number"
-            defaultValue={10}
-            placeholder="Select minimum margin (in percent)"
-            onChange={onChangeMinimumMargin}
-          />
-          <PlayerSkillFormHelper>Minimum gap in percent between first sell order and second one</PlayerSkillFormHelper>
-        </PlayerSkillFormControl>
-        <PlayerSkillFormSend onClick={save}>Save</PlayerSkillFormSend>
+              <Controller
+                name="favoriteStation"
+                placeholder="Select favorite station"
+                styles={getSelectStyle}
+                control={control}
+                options={stationOptions}
+                defaultValue={playerSkill.favoriteStation ? playerSkill.favoriteStation : stationOptions[0]}
+                value={formValues.favoriteStation}
+                as={Select}
+              />
+              <PlayerSkillFormHelper>This will set your favorite market place</PlayerSkillFormHelper>
+            </PlayerSkillFormControl>
+
+            <PlayerSkillFormControl>
+              <PlayerSkillFormLabel>Skill Accounting level</PlayerSkillFormLabel>
+              <Controller
+                name="accountingLevel"
+                placeholder="Select accounting level"
+                styles={getSelectStyle}
+                control={control}
+                options={accountingLevelOptions}
+                defaultValue={
+                  playerSkill.accountingLevel ? find(accountingLevelOptions, { value: playerSkill.accountingLevel }) : accountingLevelOptions[0]
+                }
+                value={formValues.accountingLevel}
+                as={Select}
+              />
+            </PlayerSkillFormControl>
+
+            <PlayerSkillFormControl>
+              <PlayerSkillFormLabel>Broker fee (in percent)</PlayerSkillFormLabel>
+              <Input
+                name="brokerFee"
+                ref={register}
+                defaultValue={formValues.brokerFee}
+                type="number"
+                step=".01"
+                placeholder="Broker fee (in percent)"
+              />
+              <PlayerSkillFormHelper>
+                More information about{' '}
+                <a href="https://support.eveonline.com/hc/en-us/articles/203218962-Broker-Fee-and-Sales-Tax" target="_blank">
+                  Broker fee
+                </a>{' '}
+              </PlayerSkillFormHelper>
+            </PlayerSkillFormControl>
+
+            <PlayerSkillFormControl>
+              <PlayerSkillFormLabel>Minimum margin (in percent)</PlayerSkillFormLabel>
+              <Input
+                name="minimumMargin"
+                ref={register}
+                defaultValue={formValues.minimumMargin}
+                type="number"
+                placeholder="Select minimum margin (in percent)"
+              />
+              <PlayerSkillFormHelper>Minimum gap in percent between first sell order and second one</PlayerSkillFormHelper>
+            </PlayerSkillFormControl>
+
+            <PlayerSkillFormSend type="button" onClick={handleSubmit(onSubmit)}>
+              Save
+            </PlayerSkillFormSend>
+          </>
+        ) : null}
       </PlayerSkillSidebar>
     </>
   );
