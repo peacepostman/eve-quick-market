@@ -204,7 +204,7 @@ const WatchList = (props: Props) => {
               const historyDataCompact: historyType[] = take(reverse(history.data), 14);
               return {
                 median: {
-                  data: historyDataCompact,
+                  data: reverse(historyDataCompact),
                   price_average: averagePerType(historyDataCompact, 'average'),
                   order_count_average: averagePerType(historyDataCompact, 'order_count'),
                   volume_average: averagePerType(historyDataCompact, 'volume'),

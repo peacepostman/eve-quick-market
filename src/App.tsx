@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ToastContainer, Slide } from 'react-toastify';
 import Modal from 'react-modal';
 import EveOnlineAPI from './model/eveOnlineApi';
@@ -18,10 +18,15 @@ const App: React.FC = () => {
   const [playerSkill, setPlayerSkill] = useState(getData('config', true));
   const [currentDetails, setCurrentDetails] = useState<any>(null);
   const [showModal, setShowModal] = useState<any>(false);
-  const [showGraph, setShowGraph] = useState<any>(false);
   const [forceReload, setForceReload] = useState<any>(false);
 
   Modal.setAppElement('#root');
+
+  useEffect(() => {
+    if (navigator.platform.indexOf('Mac') > -1) {
+      document.body.classList.add('is-mac');
+    }
+  }, []);
 
   function savePlayerSkill(data: any) {
     setData('config', data, true);
@@ -73,15 +78,8 @@ const App: React.FC = () => {
         <TabPanel isActive={currentTab === 1}>Coucou</TabPanel>
       </TabPanels>
 
-      <Modal
-        isOpen={showModal}
-        className="QuickMarket"
-        overlayClassName="QuickMarket"
-        onRequestClose={toggleModal}
-        onAfterOpen={() => setTimeout(() => setShowGraph(true), 300)}
-        onAfterClose={() => setShowGraph(false)}
-      >
-        {currentDetails ? <ItemDataCard currentItem={currentDetails} showGraph={showGraph} /> : null}
+      <Modal isOpen={showModal} className="QuickMarket" overlayClassName="QuickMarket" onRequestClose={toggleModal}>
+        {currentDetails ? <ItemDataCard currentItem={currentDetails} /> : null}
       </Modal>
 
       <ToastContainer

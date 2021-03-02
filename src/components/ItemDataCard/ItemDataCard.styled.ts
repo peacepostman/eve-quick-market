@@ -120,15 +120,15 @@ const ItemCardContentInner = styled.div`
   right: 0;
   bottom: 0;
   left: 0;
-  padding: 20px;
+  overflow-x: hidden;
 
   h2 {
-    margin: 0;
+    margin: 10px;
   }
 
   table {
-    width: calc(100% + 40px);
-    margin: 20px -20px;
+    width: calc(100%);
+    margin: 20px 0;
     border-spacing: 0;
     border-collapse: collapse;
     tr th {

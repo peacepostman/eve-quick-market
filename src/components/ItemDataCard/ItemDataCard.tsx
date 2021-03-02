@@ -1,8 +1,11 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
+import SimpleBar from 'simplebar-react';
+import 'simplebar/dist/simplebar.min.css';
+
 import map from 'lodash/map';
+import orderBy from 'lodash/orderBy';
 import includes from 'lodash/includes';
-import Loader from './../Loader';
 import {
   ItemCardStyled,
   ItemCardContentWrapper,
@@ -18,20 +21,16 @@ import {
 import formatCurrency from './../../helpers/formatCurrency';
 import setChartData from './../../helpers/setChartData';
 import setChartOptions from './../../helpers/setChartOptions';
-import getData from '../../helpers/getData';
 
 interface Props extends React.HTMLProps<HTMLButtonElement> {
   currentItem?: any;
-  showGraph: boolean;
 }
 
 const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
-  const { currentItem, showGraph } = props;
-  const [image] = useState(Math.floor(Math.random() * 6) + 1);
+  const { currentItem } = props;
   const [tooltipData, setTooltipData] = useState<any>({});
   const [showTooltip, setShowTooltip] = useState<boolean>(false);
   const chartRef = useRef<any>(null);
-  const isRetina = window.devicePixelRatio > 1;
 
   useEffect(() => {
     function hideTooltip() {
@@ -121,86 +120,90 @@ const SystemCard = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
             </ItemCardToolTip>
           ) : null}
         </div>
-        <small>Price evolution on the last 14 days</small>
+        <small>Price evolution on the last 14 active days</small>
       </ItemCardStatWrapper>
       <ItemCardContentWrapper>
         <ItemCardContent>
           <ItemCardContentInner>
-            <h2>Sell orders</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItem.sell_data.length > 0 ? (
-                  currentItem.sell_data.map((order: any, index: number) => {
-                    return (
-                      <tr key={index}>
-                        <td>{formatCurrency(order.volume_remain)}</td>
-                        <td>{formatCurrency(order.price)} ISK</td>
+            <SimpleBar>
+              <h2>Sell orders</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentItem.sell_data.length > 0 ? (
+                    currentItem.sell_data.map((order: any, index: number) => {
+                      return (
+                        <tr key={index}>
+                          <td>{formatCurrency(order.volume_remain)}</td>
+                          <td>{formatCurrency(order.price)} ISK</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <>
+                      <tr>
+                        <td colSpan={2}>&nbsp;</td>
                       </tr>
-                    );
-                  })
-                ) : (
-                  <>
-                    <tr>
-                      <td colSpan={2}>&nbsp;</td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2} style={{ textAlign: 'center' }}>
-                        No sell orders
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2}>&nbsp;</td>
-                    </tr>
-                  </>
-                )}
-              </tbody>
-            </table>
+                      <tr>
+                        <td colSpan={2} style={{ textAlign: 'center' }}>
+                          No sell orders
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan={2}>&nbsp;</td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+            </SimpleBar>
           </ItemCardContentInner>
         </ItemCardContent>
 
         <ItemCardContent>
           <ItemCardContentInner>
-            <h2>Buy orders</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItem.buy_data.length > 0 ? (
-                  currentItem.buy_data.map((order: any, index: number) => {
-                    return (
-                      <tr key={index}>
-                        <td>{formatCurrency(order.volume_remain)}</td>
-                        <td>{formatCurrency(order.price)} ISK</td>
+            <SimpleBar>
+              <h2>Buy orders</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentItem.buy_data.length > 0 ? (
+                    currentItem.buy_data.map((order: any, index: number) => {
+                      return (
+                        <tr key={index}>
+                          <td>{formatCurrency(order.volume_remain)}</td>
+                          <td>{formatCurrency(order.price)} ISK</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <>
+                      <tr>
+                        <td colSpan={2}>&nbsp;</td>
                       </tr>
-                    );
-                  })
-                ) : (
-                  <>
-                    <tr>
-                      <td colSpan={2}>&nbsp;</td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2} style={{ textAlign: 'center' }}>
-                        No buy orders
-                      </td>
-                    </tr>
-                    <tr>
-                      <td colSpan={2}>&nbsp;</td>
-                    </tr>
-                  </>
-                )}
-              </tbody>
-            </table>
+                      <tr>
+                        <td colSpan={2} style={{ textAlign: 'center' }}>
+                          No buy orders
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan={2}>&nbsp;</td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+            </SimpleBar>
           </ItemCardContentInner>
         </ItemCardContent>
       </ItemCardContentWrapper>
