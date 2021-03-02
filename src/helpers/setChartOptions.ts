@@ -1,3 +1,11 @@
+function format(n: any, d: any) {
+  let x = ('' + n).length;
+  let p = Math.pow;
+  d = p(10, d);
+  x -= x % 3;
+  return Math.round((n * d) / p(10, x)) / d + ' kMBT'[x / 3];
+}
+
 export default function (custom: any) {
   return {
     maintainAspectRatio: false,
@@ -5,8 +13,8 @@ export default function (custom: any) {
       padding: {
         left: 0,
         right: 0,
-        top: 5,
-        bottom: 5,
+        top: 25,
+        bottom: 15,
       },
     },
     legend: {
@@ -27,11 +35,17 @@ export default function (custom: any) {
       yAxes: [
         {
           gridLines: {
+            color: 'rgba(255,255,255,.1)',
             tickMarkLength: 0,
-            display: false,
+            display: true,
           },
           ticks: {
-            display: false,
+            fontColor: 'rgba(255,255,255,.6)',
+            padding: 10,
+            display: true,
+            callback: (value: any, index: any, values: any) => {
+              return format(value, 2);
+            },
           },
         },
       ],

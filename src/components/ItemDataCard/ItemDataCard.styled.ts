@@ -63,7 +63,7 @@ const ItemCardImageSquare = styled.img<Props>`
 
 const ItemCardStatWrapper = styled.div`
   position: relative;
-  height: 240px;
+  height: 260px;
   padding-bottom: 20px;
   margin-bottom: 10px;
   background-color: #192c34;

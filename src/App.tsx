@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [currentDetails, setCurrentDetails] = useState<any>(null);
   const [showModal, setShowModal] = useState<any>(false);
   const [showGraph, setShowGraph] = useState<any>(false);
+  const [forceReload, setForceReload] = useState<any>(false);
 
   Modal.setAppElement('#root');
 
@@ -42,6 +43,13 @@ const App: React.FC = () => {
     setShowModal((prev: boolean) => !prev);
   }
 
+  function afterSave() {
+    setForceReload(true);
+    setTimeout(() => {
+      setForceReload(false);
+    }, 200);
+  }
+
   return (
     <MainWrapper>
       <Nav>
@@ -55,12 +63,12 @@ const App: React.FC = () => {
             <img src="/img/wallet.png" className="glow" />
           </TabItem> */}
         </Tabs>
-        <PlayerSkill setPlayerSkill={savePlayerSkill} playerSkill={playerSkill} />
+        <PlayerSkill setPlayerSkill={savePlayerSkill} playerSkill={playerSkill} afterSave={afterSave} />
       </Nav>
 
       <TabPanels>
         <TabPanel isActive={currentTab === 0}>
-          <WatchList playerSkill={playerSkill} showDetailsModal={showDetailsModal} />
+          <WatchList playerSkill={playerSkill} showDetailsModal={showDetailsModal} forceReload={forceReload} />
         </TabPanel>
         <TabPanel isActive={currentTab === 1}>Coucou</TabPanel>
       </TabPanels>

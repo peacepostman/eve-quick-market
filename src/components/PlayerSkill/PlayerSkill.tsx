@@ -11,15 +11,15 @@ import getDefaultSystems from './../../helpers/getDefaultSystems';
 import { TabItem } from './../Tabs';
 import Input from './../Input';
 import { PlayerSkillSidebar, PlayerSkillFormControl, PlayerSkillFormLabel, PlayerSkillFormSend, PlayerSkillFormHelper } from './PlayerSkill.styled';
-
 interface Props {
   playerSkill: any;
   setPlayerSkill(data: any): any;
+  afterSave(): void;
 }
 
 const PlayerSkill = (props: Props) => {
   const { control, register, handleSubmit } = useForm();
-  const { playerSkill, setPlayerSkill } = props;
+  const { playerSkill, setPlayerSkill, afterSave } = props;
   const [formValues, setFormValues] = useState<any>();
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -42,6 +42,8 @@ const PlayerSkill = (props: Props) => {
           : accountingLevelOptions[0],
         brokerFee: playerSkill.brokerFee ? playerSkill.brokerFee : 5,
         minimumMargin: playerSkill.minimumMargin ? playerSkill.minimumMargin : 10,
+        minimumBenefit: playerSkill.minimumBenefit ? playerSkill.minimumBenefit : 500000,
+        gapTolerance: playerSkill.gapTolerance ? playerSkill.gapTolerance : 5,
         favoriteStation: playerSkill.favoriteStation ? playerSkill.favoriteStation : stationOptions[0],
       });
     }
@@ -91,13 +93,16 @@ const PlayerSkill = (props: Props) => {
   }
 
   const onSubmit = (data: any) => {
-    const { accountingLevel, brokerFee, favoriteStation, minimumMargin } = data;
+    const { accountingLevel, brokerFee, favoriteStation, gapTolerance, minimumBenefit, minimumMargin } = data;
     setPlayerSkill({
       accountingLevel: accountingLevel.value,
       brokerFee: parseFloat(brokerFee),
+      gapTolerance: parseInt(gapTolerance),
       minimumMargin: parseInt(minimumMargin),
+      minimumBenefit: parseInt(minimumBenefit),
       favoriteStation,
     });
+    afterSave();
     toast.success('Configuration saved', {
       autoClose: 2000,
       hideProgressBar: false,
@@ -169,6 +174,19 @@ const PlayerSkill = (props: Props) => {
             </PlayerSkillFormControl>
 
             <PlayerSkillFormControl>
+              <PlayerSkillFormLabel>GAP tolerance (in percent)</PlayerSkillFormLabel>
+              <Input
+                name="gapTolerance"
+                ref={register}
+                defaultValue={formValues.gapTolerance}
+                type="number"
+                step=".01"
+                placeholder="GAP tolerance (in percent)"
+              />
+              <PlayerSkillFormHelper>GAP tolerance between first sell order and first buy order</PlayerSkillFormHelper>
+            </PlayerSkillFormControl>
+
+            <PlayerSkillFormControl>
               <PlayerSkillFormLabel>Minimum margin (in percent)</PlayerSkillFormLabel>
               <Input
                 name="minimumMargin"
@@ -178,6 +196,20 @@ const PlayerSkill = (props: Props) => {
                 placeholder="Select minimum margin (in percent)"
               />
               <PlayerSkillFormHelper>Minimum gap in percent between first sell order and second one</PlayerSkillFormHelper>
+            </PlayerSkillFormControl>
+
+            <PlayerSkillFormControl>
+              <PlayerSkillFormLabel>Minimum benefit (in ISK)</PlayerSkillFormLabel>
+              <Input
+                name="minimumBenefit"
+                ref={register}
+                defaultValue={formValues.minimumBenefit}
+                type="number"
+                step="1000"
+                min="0"
+                placeholder="Minimum benefit (in ISK)"
+              />
+              <PlayerSkillFormHelper>Minimum total benefit in ISK</PlayerSkillFormHelper>
             </PlayerSkillFormControl>
 
             <PlayerSkillFormSend type="button" onClick={handleSubmit(onSubmit)}>

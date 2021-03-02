@@ -29,13 +29,14 @@ import { WatchListStyled } from './WatchList.styled';
 
 interface Props {
   playerSkill: any;
+  forceReload: boolean;
   showDetailsModal(item: any): void;
 }
 
 const dataSystems = getData('systems');
 
 const WatchList = (props: Props) => {
-  const { playerSkill, showDetailsModal } = props;
+  const { playerSkill, showDetailsModal, forceReload } = props;
   const [systemsData, setSystemsData] = useState<any>(null);
   const [currentSystem, setCurrentSystem] = useState<any>();
   const [loadingWatched, setLoadingWatched] = useState<boolean>(false);
@@ -51,12 +52,20 @@ const WatchList = (props: Props) => {
   const MINIMUM_TOTAL_SELL_AMOUNT = 500000;
   // gap in percent between first sell order and second sell order
   const GAP_BETWEEN_TWO_FIRST_SELLS_ORDERS = playerSkill.minimumMargin ? playerSkill.minimumMargin : 10;
+  // gap in percent between first sell order and second sell order
+  const MINIMUM_BENEFIT = playerSkill.minimumBenefit ? playerSkill.minimumBenefit : 500000;
   // gap in percent between first sell order and first buy order
-  const GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER = 5;
+  const GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER = playerSkill.gapTolerance ? playerSkill.gapTolerance : 5;
 
   useEffect(() => {
     setSystemsData(!isEmpty(dataSystems) ? dataSystems : getDefaultSystems());
   }, []);
+
+  useEffect(() => {
+    if (forceReload) {
+      reload();
+    }
+  }, [forceReload]);
 
   useEffect(() => {
     if (systemsData && !currentSystem) {
@@ -153,24 +162,28 @@ const WatchList = (props: Props) => {
           const pricePercentageDifferenceWithSecondOrder =
             100 * Math.abs((sellOrders[1].price - minSellOrder.price) / ((sellOrders[1].price + minSellOrder.price) / 2));
           if (pricePercentageDifferenceWithSecondOrder > GAP_BETWEEN_TWO_FIRST_SELLS_ORDERS) {
-            filteredOrders.push({
-              sell: minSellOrder,
-              sell_data: sellOrders,
-              sell_total: sellOrders.length,
-              second_sell: sellOrders[1],
-              difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
-              margin_between_two_first_orders:
-                sellOrders[1].price * minSellOrder.volume_remain -
-                minSellOrder.price * minSellOrder.volume_remain -
-                (sellOrders[1].price * minSellOrder.volume_remain * ((100 + (playerSkill.accountingLevel ? playerSkill.accountingLevel : 5)) / 100) -
-                  sellOrders[1].price * minSellOrder.volume_remain) -
-                (sellOrders[1].price * minSellOrder.volume_remain * ((100 + (playerSkill.brokerFee ? playerSkill.brokerFee : 5)) / 100) -
-                  sellOrders[1].price * minSellOrder.volume_remain),
-              strict_anomaly: minSellOrder.price < maxBuyOrder.price * ((100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER) / 100),
-              buy: maxBuyOrder,
-              buy_data: buyOrders,
-              buy_total: buyOrders.length,
-            });
+            const marginBetweenTwoFirstOrder =
+              sellOrders[1].price * minSellOrder.volume_remain -
+              minSellOrder.price * minSellOrder.volume_remain -
+              (sellOrders[1].price * minSellOrder.volume_remain * ((100 + (playerSkill.accountingLevel ? playerSkill.accountingLevel : 5)) / 100) -
+                sellOrders[1].price * minSellOrder.volume_remain) -
+              (sellOrders[1].price * minSellOrder.volume_remain * ((100 + (playerSkill.brokerFee ? playerSkill.brokerFee : 5)) / 100) -
+                sellOrders[1].price * minSellOrder.volume_remain);
+
+            if (marginBetweenTwoFirstOrder >= MINIMUM_BENEFIT) {
+              filteredOrders.push({
+                sell: minSellOrder,
+                sell_data: sellOrders,
+                sell_total: sellOrders.length,
+                second_sell: sellOrders[1],
+                difference_with_second_sell_order: pricePercentageDifferenceWithSecondOrder,
+                margin_between_two_first_orders: marginBetweenTwoFirstOrder,
+                strict_anomaly: minSellOrder.price < maxBuyOrder.price * ((100 + GAP_BETWEEN_SELL_ORDER_AND_BUY_ORDER) / 100),
+                buy: maxBuyOrder,
+                buy_data: buyOrders,
+                buy_total: buyOrders.length,
+              });
+            }
           }
         }
       }
@@ -333,24 +346,24 @@ const WatchList = (props: Props) => {
         },
       },
       {
-        Header: 'Price 7d',
+        Header: 'Price 14d',
         accessor: 'median.price_average',
         Cell: ({ value }: any) => {
-          return formatCurrency(value) + ' ISK';
+          return formatCurrency(Math.round(value)) + ' ISK';
         },
       },
       {
-        Header: 'Vol. 7d',
+        Header: 'Vol. 14d',
         accessor: 'median.volume_average',
         Cell: ({ value }: any) => {
-          return formatCurrency(value);
+          return formatCurrency(Math.round(value));
         },
       },
       {
-        Header: 'Order 7d',
+        Header: 'Order 14d',
         accessor: 'median.order_count_average',
         Cell: ({ value }: any) => {
-          return formatCurrency(value);
+          return formatCurrency(Math.round(value));
         },
       },
       {
